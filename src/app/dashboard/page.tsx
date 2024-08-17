@@ -157,6 +157,10 @@ export default function Dashboard() {
     router.push("/admin");
   };
 
+  const handleRequestPageRedirect = () => {
+    router.push("/requests");
+  }
+
   const defaultComplaints = [
     "Product not as described",
     "Late delivery",
@@ -207,7 +211,7 @@ export default function Dashboard() {
 
         <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
           <CardHeader>
-            <CardTitle>Stats</CardTitle>
+            <CardTitle onClick={handleRequestPageRedirect} className="hover:underline hover:cursor-pointer">Stats</CardTitle>
           </CardHeader>
           <CardContent>
             <p>Your complaint stats and metrics will be displayed here.</p>
