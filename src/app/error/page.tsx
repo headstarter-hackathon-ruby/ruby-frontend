@@ -35,6 +35,7 @@ export default function AuthErrorPage() {
             <li>Incorrect email or password</li>
             <li>An expired session</li>
             <li>Account-related issues</li>
+            <li>Unverified Account </li>
           </ul>
           <p className="text-white mt-4">
             Please try signing in again. If the problem persists, contact
