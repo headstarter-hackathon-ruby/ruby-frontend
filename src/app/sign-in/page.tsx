@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import GoogleImage from "@/images/icons8-google.svg";
 const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -62,7 +62,26 @@ export default function Signin() {
       setError("Invalid email or password");
       console.log(error);
     } else {
-      router.push("/dashboard");
+      router.push("/admin-dashboard");
+    }
+
+    setIsLoading(false);
+  }
+
+  async function signInWithGoogle() {
+    setIsLoading(true);
+    setError(null);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+
+    if (error) {
+      setError("Error signing in with Google");
+      console.log(error);
     }
 
     setIsLoading(false);
@@ -70,20 +89,44 @@ export default function Signin() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col justify-center items-center p-4">
-      <h1 className="text-5xl font-bold mb-8 text-white">Welcome Back</h1>
+      <h1 className="text-5xl font-bold mb-8 text-white">Welcome</h1>
       <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-white">
             Sign in
           </CardTitle>
           <CardDescription className="text-gray-400">
-            Enter your credentials to access your account
+            Choose your sign-in method
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           {error && <p className="text-red-500 mb-4">{error}</p>}
+
+          <div>
+            <Button
+              onClick={signInWithGoogle}
+              className="w-full bg-white text-gray-800 hover:bg-gray-200"
+              disabled={isLoading}
+            >
+              <Image src={GoogleImage} alt="Google" className="w-6 h-6 mr-2" />
+              Sign in with Google
+            </Button>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-600" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-gray-800 px-2 text-gray-400">Or</span>
+            </div>
+          </div>
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <CardDescription className="text-gray-400 text-center">
+                Admin Account Sign In
+              </CardDescription>
               <FormField
                 control={form.control}
                 name="email"
@@ -93,7 +136,7 @@ export default function Signin() {
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="johndoe@example.com"
+                        placeholder="admin@example.com"
                         className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                         {...field}
                       />
@@ -125,18 +168,10 @@ export default function Signin() {
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing In..." : "Sign In"}
+                {isLoading ? "Signing In..." : "Admin Sign In"}
               </Button>
             </form>
           </Form>
-          <div className="mt-4 text-center">
-            <a
-              href="/sign-up"
-              className="text-sm text-blue-400 hover:underline"
-            >
-              Don't have an account? Sign up
-            </a>
-          </div>
         </CardContent>
       </Card>
     </div>
