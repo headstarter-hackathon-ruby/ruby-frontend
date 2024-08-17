@@ -3,39 +3,43 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Pinecone } from "@pinecone-database/pinecone";
 
-export default function RequestsUI() {
-  const [complaints, setComplaints] = useState<
-    {
-      admin_text: string;
-      product: string;
-      resolved: string;
-      subcategory: string;
-      summary: string;
-      text: string;
-      userID: string;
-    }[]
-  >([]);
+interface Complaint {
+  complaints: any[];
+}
+export default function RequestsUI(props: Complaint) {
+  const complaints = props.complaints;
+  // const [complaints, setComplaints] = useState<
+  //   {
+  //     admin_text: string;
+  //     product: string;
+  //     resolved: string;
+  //     subcategory: string;
+  //     summary: string;
+  //     text: string;
+  //     userID: string;
+  //   }[]
+  // >([]);
   const [userId, setUserId] = useState("");
 
   const router = useRouter();
   const supabase = createClient();
   const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 
-  useEffect(() => {
-    async function getUserInfo() {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (error) {
-        console.error("Error fetching user:", error);
-      } else if (user) {
-        setUserId(user.id || "");
-      }
-    }
+  // useEffect(() => {
+  //   async function getUserInfo() {
+  //     const {
+  //       data: { user },
+  //       error,
+  //     } = await supabase.auth.getUser();
+  //     if (error) {
+  //       console.error("Error fetching user:", error);
+  //     } else if (user) {
+  //       setUserId(user.id || "");
+  //     }
+  //   }
 
-    getUserInfo();
-  });
+  //   getUserInfo();
+  // });
 
   useEffect(() => {
     async function fetchComplaints() {
