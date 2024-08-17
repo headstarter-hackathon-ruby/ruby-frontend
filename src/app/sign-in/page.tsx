@@ -68,25 +68,56 @@ export default function Signin() {
     setIsLoading(false);
   }
 
-  async function signInWithGoogle() {
-    setIsLoading(true);
-    setError(null);
+  // async function signInWithGoogle() {
+  //   setIsLoading(true);
+  //   setError(null);
 
-    const { error } = await supabase.auth.signInWithOAuth({
+  //   try {
+  //     console.log("Initiating Google sign-in...");
+  //     const { data, error } = await supabase.auth.signInWithOAuth({
+  //       provider: "google",
+  //       options: {
+  //         redirectTo: `${window.location.origin}/dashboard`,
+  //       },
+  //     });
+  //     router.push("/dashboard");
+
+  //     if (error) {
+  //       console.error("Google sign-in error:", error);
+  //       setError("Error signing in with Google");
+  //     } else if (data) {
+  //       console.log("Google sign-in successful:", data);
+  //       // Check if we have a session
+  //       const { data: sessionData } = await supabase.auth.getSession();
+  //       if (sessionData?.session) {
+  //         console.log("Session found, redirecting to dashboard...");
+  //         router.push("/dashboard");
+  //       } else {
+  //         console.log("No session found after sign-in");
+  //         setError(
+  //           "Sign-in successful, but no session was created. Please try again."
+  //         );
+  //       }
+  //     } else {
+  //       console.log("No data or error returned from signInWithOAuth");
+  //       setError("An unexpected error occurred. Please try again.");
+  //     }
+  //   } catch (e) {
+  //     console.error("Unexpected error during Google sign-in:", e);
+  //     setError("An unexpected error occurred. Please try again.");
+  //   }
+
+  //   setIsLoading(false);
+  // }
+
+  async function signInWithGoogle() {
+    await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-
-    if (error) {
-      setError("Error signing in with Google");
-      console.log(error);
-    }
-
-    setIsLoading(false);
   }
-
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col justify-center items-center p-4">
       <h1 className="text-5xl font-bold mb-8 text-white">Welcome</h1>
