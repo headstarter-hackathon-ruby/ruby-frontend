@@ -10,6 +10,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { Camera, Mic, Send, User, Bot, Loader2 } from "lucide-react";
 import { API_URL } from "../config";
 import { set } from "react-hook-form";
+
 interface Message {
   type: "user" | "bot";
   content: string;
@@ -25,6 +26,8 @@ export default function Dashboard() {
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const audioFileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
 
   useEffect(() => {
     async function getUserInfo() {
@@ -52,49 +55,83 @@ export default function Dashboard() {
     router.push("/sign-in");
   };
 
+  const handleAudioButton = async () => {
+    audioFileInputRef.current?.click();
+  };
+
+  const handleUploadAudio = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedAudioFile(e.target.files[0]);
+    }
+  };
+
   const handleSendMessage = async () => {
-    if (inputText.trim()) {
-      setMessages([...messages, { type: "user", content: inputText }]);
-      setInputText("");
+    if (inputText.trim() || selectedAudioFile) {
+      setLoading(true);
 
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_URL}textPrompt`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt: inputText, userID: userId }),
-        });
+      if (selectedAudioFile) {
+        const { data, error } = await supabase.storage
+          .from("audio")
+          .upload("public/" + selectedAudioFile.name, selectedAudioFile);
 
-        const data = await response.json();
-        const textResponse = data.result.textResponse;
-        console.log("textResponse", textResponse);
+        if (error) {
+          console.error("Error uploading audio:", error);
+        } else {
+          console.log("Audio uploaded successfully:", data);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: "user",
+              content: `Uploaded audio: ${selectedAudioFile.name}`,
+            },
+          ]);
+        }
 
-        // Simulate bot response
-        setTimeout(() => {
+        setSelectedAudioFile(null);
+      }
+
+      if (inputText.trim()) {
+        setMessages([...messages, { type: "user", content: inputText }]);
+        setInputText("");
+
+        try {
+          const response = await fetch(`${API_URL}textPrompt`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prompt: inputText, userID: userId }),
+          });
+
+          const data = await response.json();
+          const textResponse = data.result.textResponse;
+          console.log("textResponse", textResponse);
+
+          // Simulate bot response
+          setTimeout(() => {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                type: "bot",
+                content:
+                  textResponse ||
+                  "Thank you for your complaint. We've recorded it and will get back to you soon.",
+              },
+            ]);
+          }, 1000);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error sending message:", error);
           setMessages((prevMessages) => [
             ...prevMessages,
             {
               type: "bot",
-              content:
-                textResponse ||
-                "Thank you for your complaint. We've recorded it and will get back to you soon.",
+              content: "Sorry, something went wrong. Please try again later.",
             },
           ]);
-        }, 1000);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error sending message:", error);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            type: "bot",
-            content: "Sorry, something went wrong. Please try again later.",
-          },
-        ]);
-        setLoading(false);
+        }
       }
+      setLoading(false);
     }
   };
   const handleAdminPageRedirect = () => {
@@ -237,12 +274,20 @@ export default function Dashboard() {
               )}
               {loading ? "Sending..." : "Submit"}
             </Button>
-            <Button disabled={loading}>
-              <Mic className="mr-2 h-4 w-4" /> Record Audio
+            <Button disabled={loading} onClick={handleAudioButton}>
+              <Mic className="mr-2 h-4 w-4" />
+              {selectedAudioFile ? selectedAudioFile.name : "Upload Audio"}
             </Button>
             <Button disabled={loading}>
               <Camera className="mr-2 h-4 w-4" /> Upload Image
             </Button>
+            <input
+              type="file"
+              accept="audio/*"
+              ref={audioFileInputRef}
+              style={{ display: "none" }}
+              onChange={handleUploadAudio}
+            />
           </div>
         </CardContent>
       </Card>
