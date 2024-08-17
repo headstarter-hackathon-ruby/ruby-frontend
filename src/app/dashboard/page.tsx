@@ -10,6 +10,18 @@ import { createClient } from "@/app/utils/supabase/client";
 import { Camera, Mic, Send, User, Bot, Loader2 } from "lucide-react";
 import { API_URL } from "../config";
 import { set } from "react-hook-form";
+import toast from "react-hot-toast";
+
+//whisper only accepts these audio formats
+const ALLOWED_AUDIO_FILE_TYPES = [
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/m4a",
+  "audio/mp3",
+  "audio/wav",
+  "audio/mpga",
+  "audio/webm",
+];
 
 interface Message {
   type: "user" | "bot";
@@ -70,6 +82,13 @@ export default function Dashboard() {
       setLoading(true);
 
       if (selectedAudioFile) {
+        if (!ALLOWED_AUDIO_FILE_TYPES.includes(selectedAudioFile.type)) {
+          toast.error(
+            "Invalid audio file type. Please upload a valid audio file."
+          );
+          return;
+        }
+
         const { data, error } = await supabase.storage
           .from("audio")
           .upload("public/" + selectedAudioFile.name, selectedAudioFile);
