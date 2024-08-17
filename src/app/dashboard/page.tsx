@@ -97,6 +97,13 @@ export default function Dashboard() {
           console.error("Error uploading audio:", error);
         } else {
           console.log("Audio uploaded successfully:", data);
+          const { data: publicUrlData } = supabase.storage
+            .from("audio")
+            .getPublicUrl("public/" + selectedAudioFile.name);
+
+          const audioUrl = publicUrlData.publicUrl;
+          console.log(audioUrl);
+
           setMessages((prevMessages) => [
             ...prevMessages,
             {
