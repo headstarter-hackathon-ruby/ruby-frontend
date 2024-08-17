@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/components/ui/ThemeContext";
 import { ToggleButton } from "@/components/ui/ToggleButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,30 @@ export default function Dashboard() {
   const router = useRouter();
   const supabase = createClient();
   const [complaintText, setComplaintText] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    async function getUserInfo() {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else if (user) {
+        setUserEmail(user.email || "");
+        setUserId(user.id || "");
+      }
+    }
+
+    getUserInfo();
+  }, []);
+
+  useEffect(() => {
+    console.log("User email:", userEmail);
+    console.log("User ID:", userId);
+  }, [userEmail, userId]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -28,38 +52,59 @@ export default function Dashboard() {
     setComplaintText(""); // Clear the input after submission
   };
 
+  const handleAdminPageRedirect = () => {
+    router.push("/admin");
+  };
+
   const defaultComplaints = [
     "Product not as described",
     "Late delivery",
     "Poor customer service",
     "Billing issue",
     "Defective product",
-    "Cancellation problem"
+    "Cancellation problem",
   ];
 
   return (
-    <div className={`min-h-screen w-full p-4 ${
-      theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
-    }`}>
+    <div
+      className={`min-h-screen w-full p-4 ${
+        theme === "dark"
+          ? "bg-gray-900 text-white"
+          : "bg-gray-100 text-gray-900"
+      }`}
+    >
       <nav className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <div className="flex items-center space-x-4">
-          <ToggleButton />
-          <Button onClick={handleSignOut}>Sign Out</Button>
+          {userId && userId === "f6b625bc-e878-4fc2-9855-fb51e312cfba" ? (
+            <>
+              <ToggleButton />
+              <Button onClick={handleSignOut}>Sign Out</Button>
+              <Button onClick={handleAdminPageRedirect}>Admin</Button>
+            </>
+          ) : (
+            <>
+              <ToggleButton />
+              <Button onClick={handleSignOut}>Sign Out</Button>
+            </>
+          )}
         </div>
       </nav>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <Card className={theme === 'dark' ? 'bg-gray-800' : 'bg-white'}>
+        <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
           <CardHeader>
             <CardTitle>Welcome</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Welcome to your dashboard. Here you can manage your account and submit complaints.</p>
+            <p>
+              Welcome to your dashboard. Here you can manage your account and
+              submit complaints.
+            </p>
           </CardContent>
         </Card>
-        
-        <Card className={theme === 'dark' ? 'bg-gray-800' : 'bg-white'}>
+
+        <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
           <CardHeader>
             <CardTitle>Stats</CardTitle>
           </CardHeader>
@@ -67,8 +112,8 @@ export default function Dashboard() {
             <p>Your complaint stats and metrics will be displayed here.</p>
           </CardContent>
         </Card>
-        
-        <Card className={theme === 'dark' ? 'bg-gray-800' : 'bg-white'}>
+
+        <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
@@ -78,7 +123,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <Card className={`mb-8 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+      <Card className={`mb-8 ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
         <CardHeader>
           <CardTitle>Submit a Complaint</CardTitle>
         </CardHeader>
