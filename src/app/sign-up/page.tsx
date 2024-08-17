@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-
+import { signup } from "../sign-in/actions";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -27,7 +27,7 @@ import {
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_KEY || ""
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 );
 
 const formSchema = z
@@ -113,7 +113,7 @@ export default function Signup() {
         <CardContent>
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form className="space-y-6">
               <FormField
                 control={form.control}
                 name="name"
@@ -189,6 +189,7 @@ export default function Signup() {
               />
               <Button
                 type="submit"
+                formAction={signup}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isLoading}
               >
@@ -197,7 +198,10 @@ export default function Signup() {
             </form>
           </Form>
           <div className="mt-4 text-center">
-            <a href="#" className="text-sm text-blue-400 hover:underline">
+            <a
+              href="/sign-in"
+              className="text-sm text-blue-400 hover:underline"
+            >
               Already have an account? Sign in
             </a>
           </div>
