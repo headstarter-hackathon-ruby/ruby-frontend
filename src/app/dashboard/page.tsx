@@ -14,15 +14,45 @@ import toast from "react-hot-toast";
 
 //whisper only accepts these audio formats
 const ALLOWED_AUDIO_FILE_TYPES = [
+  // MP3
   "audio/mpeg",
-  "audio/mp4",
-  "audio/m4a",
   "audio/mp3",
+  "audio/MPA",
+  "audio/mpa-robust",
+  // M4A
+  "audio/m4a",
+  "audio/x-m4a",
+  "audio/aac",
+  // MP4
+  "audio/mp4",
+  "audio/x-mp4",
+  // WAV
   "audio/wav",
-  "audio/mpga",
+  "audio/wave",
+  "audio/x-wav",
+  // WebM
   "audio/webm",
+  // Ogg
+  "audio/ogg",
+  "audio/x-ogg",
+  "application/ogg",
+  // FLAC
+  "audio/flac",
+  "audio/x-flac",
+  // AAC
+  "audio/aac",
+  "audio/aacp",
+  // 3GPP
+  "audio/3gpp",
+  "audio/3gpp2",
+  // MIDI
+  "audio/midi",
+  "audio/x-midi",
+  // Basic
+  "audio/basic",
+  // Generic
+  "audio/*",
 ];
-
 interface Message {
   type: "user" | "bot";
   content: string;
@@ -40,6 +70,7 @@ export default function Dashboard() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const audioFileInputRef = useRef<HTMLInputElement>(null);
   const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
+  const [audioUploadError, setAudioUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     async function getUserInfo() {
@@ -76,33 +107,49 @@ export default function Dashboard() {
       setSelectedAudioFile(e.target.files[0]);
     }
   };
+  useEffect(() => {
+    console.log(selectedAudioFile);
+  }, [selectedAudioFile]);
 
   const handleSendMessage = async () => {
+    console.log("Sending message or uploading file");
     if (inputText.trim() || selectedAudioFile) {
       setLoading(true);
+      setAudioUploadError(null); // Clear any previous errors
 
       if (selectedAudioFile) {
+        console.log("Attempting to upload audio file:", selectedAudioFile.name);
         if (!ALLOWED_AUDIO_FILE_TYPES.includes(selectedAudioFile.type)) {
-          toast.error(
-            "Invalid audio file type. Please upload a valid audio file."
-          );
+          console.log("Invalid file type:", selectedAudioFile.type);
+          const errorMessage =
+            "Invalid audio file type. Please upload a valid audio file.";
+          toast.error(errorMessage);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: "bot",
+              content: errorMessage,
+            },
+          ]);
+          setAudioUploadError(errorMessage);
+          setLoading(false);
           return;
         }
 
-        const { data, error } = await supabase.storage
-          .from("audio")
-          .upload("public/" + selectedAudioFile.name, selectedAudioFile);
+        try {
+          const { data, error } = await supabase.storage
+            .from("audio")
+            .upload("public/" + selectedAudioFile.name, selectedAudioFile);
 
-        if (error) {
-          console.error("Error uploading audio:", error);
-        } else {
+          if (error) throw error;
+
           console.log("Audio uploaded successfully:", data);
           const { data: publicUrlData } = supabase.storage
             .from("audio")
             .getPublicUrl("public/" + selectedAudioFile.name);
 
           const audioUrl = publicUrlData.publicUrl;
-          console.log(audioUrl);
+          console.log("Audio URL:", audioUrl);
 
           setMessages((prevMessages) => [
             ...prevMessages,
@@ -111,13 +158,30 @@ export default function Dashboard() {
               content: `Uploaded audio: ${selectedAudioFile.name}`,
             },
           ]);
+        } catch (error: any) {
+          console.error("Error uploading audio:", error);
+          const errorMessage = `Error uploading audio: ${
+            error.message || "Unknown error"
+          }`;
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: "bot",
+              content: errorMessage,
+            },
+          ]);
+          setAudioUploadError(errorMessage);
+          toast.error(errorMessage);
+        } finally {
+          setLoading(false);
         }
-
-        setSelectedAudioFile(null);
       }
 
       if (inputText.trim()) {
-        setMessages([...messages, { type: "user", content: inputText }]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: "user", content: inputText },
+        ]);
         setInputText("");
 
         try {
@@ -145,7 +209,6 @@ export default function Dashboard() {
               },
             ]);
           }, 1000);
-          setLoading(false);
         } catch (error) {
           console.error("Error sending message:", error);
           setMessages((prevMessages) => [
@@ -157,6 +220,7 @@ export default function Dashboard() {
           ]);
         }
       }
+
       setLoading(false);
     }
   };
