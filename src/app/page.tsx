@@ -2,8 +2,6 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "./utils/supabase/server";
 
-const API_URL = "https://ruby-backend.onrender.com/";
-
 export default async function PrivatePage() {
   const supabase = createClient();
 

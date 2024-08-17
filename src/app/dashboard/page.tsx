@@ -1,23 +1,30 @@
 "use client";
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "@/components/ui/ThemeContext";
 import { ToggleButton } from "@/components/ui/ToggleButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
-import { Camera, Mic, Send } from "lucide-react";
+import { Camera, Mic, Send, User, Bot, Loader2 } from "lucide-react";
+import { API_URL } from "../config";
+import { set } from "react-hook-form";
+interface Message {
+  type: "user" | "bot";
+  content: string;
+}
 
 export default function Dashboard() {
   const { theme } = useTheme();
   const router = useRouter();
   const supabase = createClient();
-  const [complaintText, setComplaintText] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputText, setInputText] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userId, setUserId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function getUserInfo() {
@@ -37,21 +44,59 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    console.log("User email:", userEmail);
-    console.log("User ID:", userId);
-  }, [userEmail, userId]);
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push("/sign-in");
   };
 
-  const handleComplaintSubmit = (text = complaintText) => {
-    console.log("Submitting complaint:", text);
-    // Here you would typically send the complaint to your backend
-    setComplaintText(""); // Clear the input after submission
-  };
+  const handleSendMessage = async () => {
+    if (inputText.trim()) {
+      setMessages([...messages, { type: "user", content: inputText }]);
+      setInputText("");
 
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}textPrompt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt: inputText, userID: userId }),
+        });
+
+        const data = await response.json();
+        const textResponse = data.result.textResponse;
+        console.log("textResponse", textResponse);
+
+        // Simulate bot response
+        setTimeout(() => {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: "bot",
+              content:
+                textResponse ||
+                "Thank you for your complaint. We've recorded it and will get back to you soon.",
+            },
+          ]);
+        }, 1000);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            type: "bot",
+            content: "Sorry, something went wrong. Please try again later.",
+          },
+        ]);
+        setLoading(false);
+      }
+    }
+  };
   const handleAdminPageRedirect = () => {
     router.push("/admin");
   };
@@ -128,20 +173,74 @@ export default function Dashboard() {
           <CardTitle>Submit a Complaint</CardTitle>
         </CardHeader>
         <CardContent>
-          <Textarea
-            placeholder="Type your complaint here..."
-            value={complaintText}
-            onChange={(e) => setComplaintText(e.target.value)}
-            className="mb-4"
-          />
+          <div className="h-64 overflow-y-auto mb-4 space-y-4">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  message.type === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[70%] p-3 rounded-lg ${
+                    message.type === "user"
+                      ? "bg-blue-500 text-white"
+                      : `${theme === "dark" ? "bg-gray-700" : "bg-gray-200"}`
+                  }`}
+                >
+                  <div className="flex items-center mb-1">
+                    {message.type === "user" ? (
+                      <User className="w-4 h-4 mr-2" />
+                    ) : (
+                      <Bot className="w-4 h-4 mr-2" />
+                    )}
+                    <span className="font-semibold">
+                      {message.type === "user" ? "You" : "Support Bot"}
+                    </span>
+                  </div>
+                  <p>{message.content}</p>
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div
+                  className={`max-w-[70%] p-3 rounded-lg ${
+                    theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <span>Support Bot is typing...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
           <div className="flex space-x-2">
-            <Button onClick={() => handleComplaintSubmit()}>
-              <Send className="mr-2 h-4 w-4" /> Submit Text
+            <Input
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyPress={(e) =>
+                e.key === "Enter" && !loading && handleSendMessage()
+              }
+              placeholder="Type your complaint here..."
+              className="flex-1"
+              disabled={loading}
+            />
+            <Button onClick={handleSendMessage} disabled={loading}>
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
+              {loading ? "Sending..." : "Submit"}
             </Button>
-            <Button>
+            <Button disabled={loading}>
               <Mic className="mr-2 h-4 w-4" /> Record Audio
             </Button>
-            <Button>
+            <Button disabled={loading}>
               <Camera className="mr-2 h-4 w-4" /> Upload Image
             </Button>
           </div>
@@ -155,7 +254,19 @@ export default function Dashboard() {
             key={index}
             variant="outline"
             className="h-auto py-4 px-6 text-left justify-start items-start"
-            onClick={() => handleComplaintSubmit(complaint)}
+            onClick={() => {
+              setMessages([...messages, { type: "user", content: complaint }]);
+              setTimeout(() => {
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  {
+                    type: "bot",
+                    content:
+                      "Thank you for your complaint. We've recorded it and will get back to you soon.",
+                  },
+                ]);
+              }, 1000);
+            }}
           >
             {complaint}
           </Button>
