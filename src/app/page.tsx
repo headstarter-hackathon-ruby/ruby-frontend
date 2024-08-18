@@ -9,7 +9,7 @@ export default async function PrivatePage() {
   if (error || !data?.user) {
     redirect("/sign-in");
   } else {
-    redirect("/dashboard");
+    redirect("/tracker");
     console.log(data.user);
     return null;
   }
