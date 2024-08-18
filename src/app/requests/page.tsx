@@ -1,11 +1,9 @@
 import React from "react";
 import { Pinecone } from "@pinecone-database/pinecone";
 import RequestsUI from "./ui";
-import { createClient } from "../utils/supabase/server";
 import { API_URL } from "../config";
-
+import { createClient } from "../utils/supabase/server";
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
-const supabase = createClient();
 
 const fetchComplaints = async (userId: string) => {
   const index = pc.index("complaints");
@@ -71,46 +69,46 @@ const fetchSolution = async (complaint: string) => {
 };
 
 const handleResolve = async (complaint: any, solution: string | undefined) => {
-    "use server";
-    const index = pc.index("complaints");
-    const prevResolved = complaint.resolved === "true";
-    console.log(prevResolved);
-    console.log(complaint.pinecodeID);
-    try {
-      if (prevResolved) {
-        // Mark as unresolved
-        await index.namespace("rag_complaints").update({
-          id: complaint.pinecodeID,
-          metadata: {
-            resolved: false,
-            admin_text: " ",
-          },
-        });
-      } else {
-        // Mark as resolved with solution
-        await index.namespace("rag_complaints").update({
-          id: complaint.pinecodeID,
-          metadata: {
-            resolved: true,
-            admin_text: solution,
-          },
-        });
-      }
-      await fetchComplaints(complaint.userID);
-    } catch (error) {
-      console.error("Error resolving complaint:", error);
+  "use server";
+  const index = pc.index("complaints");
+  const prevResolved = complaint.resolved === "true";
+  console.log(prevResolved);
+  console.log(complaint.pinecodeID);
+  try {
+    if (prevResolved) {
+      // Mark as unresolved
+      await index.namespace("rag_complaints").update({
+        id: complaint.pinecodeID,
+        metadata: {
+          resolved: false,
+          admin_text: " ",
+        },
+      });
+    } else {
+      // Mark as resolved with solution
+      await index.namespace("rag_complaints").update({
+        id: complaint.pinecodeID,
+        metadata: {
+          resolved: true,
+          admin_text: solution,
+        },
+      });
     }
-  };
+    await fetchComplaints(complaint.userID);
+  } catch (error) {
+    console.error("Error resolving complaint:", error);
+  }
+};
 
 export default async function RequestsPage() {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.getUser();
+
   if (error) {
-    console.error("Error fetching user:", error);
-    return <div>Error fetching user</div>;
+    return <div>Error fetching user: {error.message}</div>;
   }
+
+  const user = data.user;
 
   if (user) {
     const userId = user.id || "";
