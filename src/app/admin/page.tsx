@@ -1,72 +1,616 @@
-import React from "react";
+// // "use client"
+// // import React, { useState, useEffect } from 'react';
+// // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// // import { Button } from "@/components/ui/button";
+// // import { Input } from "@/components/ui/input";
+// // import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+// // import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+// // import { Pagination } from "@/components/ui/pagination";
+// // import { API_URL } from "../config";
+// // const AdminDashboard = () => {
+// //   const [complaints, setComplaints] = useState([]);
+// //   const [filteredComplaints, setFilteredComplaints] = useState([]);
+// //   const [currentPage, setCurrentPage] = useState(1);
+// //   const [complaintsPerPage] = useState(10);
+// //   const [filter, setFilter] = useState('all');
+// //   const [totalComplaints, setTotalComplaints] = useState(0);
+// //   const [categories, setCategories] = useState([]);
+// //   const [resolutionStatus, setResolutionStatus] = useState({ resolved: 0, unresolved: 0, resolution_rate: 0 });
+// //   const [loading, setLoading] = useState(true);
+// //   const [error, setError] = useState(null);
+
+// //   useEffect(() => {
+// //     const fetchData = async () => {
+// //       setLoading(true);
+
+// //       try {
+// //         const [allComplaints] = await Promise.all([
+// //           fetch('${API_URL}complaints/all').then(res => res.json()),
+// //         ]);
+
+
+
+
+
+
+// //         // try {
+// //         //   const [allComplaints, categoriesData, resolutionData] = await Promise.all([
+// //         //     fetch('${API_URL}complaints/all').then(res => res.json()),
+// //         //     // fetch('/complaints/categories').then(res => res.json()),
+// //         //     // fetch('/complaints/resolution_status').then(res => res.json())
+// //         //   ]);
+
+// //         // ///  try {
+// //         // setLoading(true);
+// //         // const response = await fetch(`${API_URL}textPrompt`, {
+// //         //   method: "POST",
+// //         //   headers: {
+// //         //     "Content-Type": "application/json",
+// //         //   },
+// //         //   body: JSON.stringify({ prompt: inputText, userID: userId }),
+// //         // });
+
+// //         setComplaints(allComplaints.complaints);
+// //         setTotalComplaints(allComplaints.total_complaints);
+// //         setCategories(categoriesData.categories);
+// //         setResolutionStatus(resolutionData);
+// //         setFilteredComplaints(allComplaints.complaints);
+// //       } catch (err) {
+// //         setError('Failed to fetch data');
+// //         console.error(err);
+// //       } finally {
+// //         setLoading(false);
+// //       }
+// //     };
+
+// //     fetchData();
+// //   }, []);
+
+// //   useEffect(() => {
+// //     if (filter === 'unresolved') {
+// //       const fetchOpenComplaints = async () => {
+// //         try {
+// //           const response = await fetch('/complaints/open');
+// //           const data = await response.json();
+// //           setFilteredComplaints(data.unresolved);
+// //         } catch (err) {
+// //           console.error('Failed to fetch open complaints:', err);
+// //         }
+// //       };
+// //       fetchOpenComplaints();
+// //     } else {
+// //       setFilteredComplaints(complaints);
+// //     }
+// //   }, [complaints, filter]);
+
+// //   const pieChartData = [
+// //     { name: 'Resolved', value: resolutionStatus.resolved },
+// //     { name: 'Unresolved', value: resolutionStatus.unresolved },
+// //   ];
+
+// //   const barChartData = categories.map(category => ({
+// //     category: category.name,
+// //     count: category.count,
+// //   }));
+
+// //   const indexOfLastComplaint = currentPage * complaintsPerPage;
+// //   const indexOfFirstComplaint = indexOfLastComplaint - complaintsPerPage;
+// //   const currentComplaints = filteredComplaints.slice(indexOfFirstComplaint, indexOfLastComplaint);
+
+// //   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+// //   const toggleResolution = async (id) => {
+// //     // Here you would typically make an API call to update the complaint status
+// //     // For now, we'll just update the local state
+// //     setComplaints(complaints.map(complaint =>
+// //       complaint.id === id
+// //         ? { ...complaint, status: complaint.status === 'Resolved' ? 'Unresolved' : 'Resolved' }
+// //         : complaint
+// //     ));
+// //   };
+
+// //   const addAdminMessage = async (id, message) => {
+// //     // Here you would typically make an API call to add the admin message
+// //     // For now, we'll just update the local state
+// //     setComplaints(complaints.map(complaint =>
+// //       complaint.id === id
+// //         ? { ...complaint, adminMessage: message }
+// //         : complaint
+// //     ));
+// //   };
+
+// //   if (loading) return <div>Loading...</div>;
+// //   if (error) return <div>Error: {error}</div>;
+
+// //   return (
+// //     <div className="p-8">
+// //       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+
+// //       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+// //         <Card>
+// //           <CardHeader>
+// //             <CardTitle>Total Complaints</CardTitle>
+// //           </CardHeader>
+// //           <CardContent>
+// //             <div className="text-2xl font-bold">{totalComplaints}</div>
+// //           </CardContent>
+// //         </Card>
+
+// //         <Card>
+// //           <CardHeader>
+// //             <CardTitle>Complaint Status</CardTitle>
+// //           </CardHeader>
+// //           <CardContent>
+// //             <ResponsiveContainer width="100%" height={200}>
+// //               <PieChart>
+// //                 <Pie
+// //                   data={pieChartData}
+// //                   cx="50%"
+// //                   cy="50%"
+// //                   outerRadius={80}
+// //                   fill="#8884d8"
+// //                   dataKey="value"
+// //                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+// //                 />
+// //               </PieChart>
+// //             </ResponsiveContainer>
+// //           </CardContent>
+// //         </Card>
+
+// //         <Card className="col-span-2">
+// //           <CardHeader>
+// //             <CardTitle>Complaint Categories</CardTitle>
+// //           </CardHeader>
+// //           <CardContent>
+// //             <ResponsiveContainer width="100%" height={300}>
+// //               <BarChart data={barChartData}>
+// //                 <CartesianGrid strokeDasharray="3 3" />
+// //                 <XAxis dataKey="category" />
+// //                 <YAxis />
+// //                 <Tooltip />
+// //                 <Legend />
+// //                 <Bar dataKey="count" fill="#8884d8" />
+// //               </BarChart>
+// //             </ResponsiveContainer>
+// //           </CardContent>
+// //         </Card>
+// //       </div>
+
+// //       <div className="mb-4">
+// //         <Button
+// //           onClick={() => setFilter(filter === 'all' ? 'unresolved' : 'all')}
+// //           variant="outline"
+// //         >
+// //           {filter === 'all' ? 'Show Unresolved' : 'Show All'}
+// //         </Button>
+// //       </div>
+
+// //       <Table>
+// //         <TableHeader>
+// //           <TableRow>
+// //             <TableHead>ID</TableHead>
+// //             <TableHead>Type</TableHead>
+// //             <TableHead>Subtype</TableHead>
+// //             <TableHead>Status</TableHead>
+// //             <TableHead>Message</TableHead>
+// //             <TableHead>Actions</TableHead>
+// //           </TableRow>
+// //         </TableHeader>
+// //         <TableBody>
+// //           {currentComplaints.map((complaint) => (
+// //             <TableRow key={complaint.id}>
+// //               <TableCell>{complaint.id}</TableCell>
+// //               <TableCell>{complaint.type}</TableCell>
+// //               <TableCell>{complaint.subtype}</TableCell>
+// //               <TableCell>{complaint.status}</TableCell>
+// //               <TableCell>{complaint.message}</TableCell>
+// //               <TableCell>
+// //                 <Button onClick={() => toggleResolution(complaint.id)}>
+// //                   {complaint.status === 'Resolved' ? 'Unresolve' : 'Resolve'}
+// //                 </Button>
+// //                 <Input
+// //                   placeholder="Admin message"
+// //                   onChange={(e) => addAdminMessage(complaint.id, e.target.value)}
+// //                 />
+// //               </TableCell>
+// //             </TableRow>
+// //           ))}
+// //         </TableBody>
+// //       </Table>
+
+// //       <Pagination
+// //         complaintsPerPage={complaintsPerPage}
+// //         totalComplaints={filteredComplaints.length}
+// //         paginate={paginate}
+// //         currentPage={currentPage}
+// //       />
+// //     </div>
+// //   );
+// // };
+
+// // export default AdminDashboard;
+
+// "use client"
+// import React, { useState, useEffect } from 'react';
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+// import { API_URL } from "../config";
+
+// const AdminDashboard = () => {
+//   const [complaints, setComplaints] = useState([]);
+//   const [totalComplaints, setTotalComplaints] = useState(0);
+//   const [categories, setCategories] = useState({});
+//   const [resolutionStatus, setResolutionStatus] = useState({ resolved: 0, unresolved: 0, resolution_rate: 0 });
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setLoading(true);
+//       try {
+//         const [allComplaintsRes, categoriesRes, resolutionStatusRes] = await Promise.all([
+//           fetch(`${API_URL}complaints/all`),
+//           fetch(`${API_URL}complaints/categories`),
+//           fetch(`${API_URL}complaints/resolution_status`)
+//         ]);
+
+//         const allComplaintsData = await allComplaintsRes.json();
+//         const categoriesData = await categoriesRes.json();
+//         const resolutionStatusData = await resolutionStatusRes.json();
+
+//         setComplaints(allComplaintsData.complaints);
+//         setTotalComplaints(allComplaintsData.total_complaints);
+//         setCategories(categoriesData.categories);
+//         setResolutionStatus(resolutionStatusData);
+//       } catch (err) {
+//         setError('Failed to fetch data');
+//         console.error(err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, []);
+
+//   const pieChartData = [
+//     { name: 'Resolved', value: resolutionStatus.resolved },
+//     { name: 'Unresolved', value: resolutionStatus.unresolved },
+//   ];
+
+//   const barChartData = Object.entries(categories).map(([category, count]) => ({
+//     category,
+//     count,
+//   }));
+
+//   if (loading) return <div>Loading...</div>;
+//   if (error) return <div>Error: {error}</div>;
+
+//   return (
+//     <div className="p-8">
+//       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+//         <Card>
+//           <CardHeader>
+//             <CardTitle>Total Complaints</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <div className="text-2xl font-bold">{totalComplaints}</div>
+//           </CardContent>
+//         </Card>
+
+//         <Card>
+//           <CardHeader>
+//             <CardTitle>Complaint Status</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <ResponsiveContainer width="100%" height={200}>
+//               <PieChart>
+//                 <Pie
+//                   data={pieChartData}
+//                   cx="50%"
+//                   cy="50%"
+//                   outerRadius={80}
+//                   fill="#8884d8"
+//                   dataKey="value"
+//                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+//                 />
+//               </PieChart>
+//             </ResponsiveContainer>
+//           </CardContent>
+//         </Card>
+
+//         <Card className="col-span-2">
+//           <CardHeader>
+//             <CardTitle>Complaint Categories</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <ResponsiveContainer width="100%" height={300}>
+//               <BarChart data={barChartData}>
+//                 <CartesianGrid strokeDasharray="3 3" />
+//                 <XAxis dataKey="category" />
+//                 <YAxis />
+//                 <Tooltip />
+//                 <Legend />
+//                 <Bar dataKey="count" fill="#8884d8" />
+//               </BarChart>
+//             </ResponsiveContainer>
+//           </CardContent>
+//         </Card>
+//       </div>
+
+//       <Table>
+//         <TableHeader>
+//           <TableRow>
+//             <TableHead>ID</TableHead>
+//             <TableHead>Category</TableHead>
+//             <TableHead>Sub-category</TableHead>
+//             <TableHead>Resolved</TableHead>
+//             <TableHead>Summary</TableHead>
+//           </TableRow>
+//         </TableHeader>
+//         <TableBody>
+//           {complaints.map((complaint) => (
+//             <TableRow key={complaint.id}>
+//               <TableCell>{complaint.id}</TableCell>
+//               <TableCell>{complaint.metadata.product}</TableCell>
+//               <TableCell>{complaint.metadata.sub_product}</TableCell>
+//               <TableCell>{complaint.metadata.resolved ? 'Yes' : 'No'}</TableCell>
+//               <TableCell>{complaint.metadata.summary}</TableCell>
+//             </TableRow>
+//           ))}
+//         </TableBody>
+//       </Table>
+//     </div>
+//   );
+// };
+
+// export default AdminDashboard;
+
+'use client'
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { API_URL } from "../config";
 
-const data = [
-  { name: "Jan", value: 400 },
-  { name: "Feb", value: 300 },
-  { name: "Mar", value: 600 },
-  { name: "Apr", value: 800 },
-  { name: "May", value: 500 },
-  { name: "Jun", value: 700 },
-];
+const AdminDashboard = () => {
+  const [complaints, setComplaints] = useState([]);
+  const [totalComplaints, setTotalComplaints] = useState(0);
+  const [categories, setCategories] = useState({});
+  const [resolutionStatus, setResolutionStatus] = useState({ resolved: 0, unresolved: 0, resolution_rate: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [complaintsPerPage] = useState(10);
+  const [adminNotes, setAdminNotes] = useState({});
+  const [similarComplaints, setSimilarComplaints] = useState([]);
+  const [complaintTextForSimilar, setComplaintTextForSimilar] = useState('');
 
-const lineData = [
-  { name: "Mon", users: 120, sales: 900 },
-  { name: "Tue", users: 150, sales: 1200 },
-  { name: "Wed", users: 180, sales: 1100 },
-  { name: "Thu", users: 190, sales: 1300 },
-  { name: "Fri", users: 160, sales: 1500 },
-  { name: "Sat", users: 200, sales: 1800 },
-  { name: "Sun", users: 140, sales: 1000 },
-];
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-const MetricCard = ({
-  title,
-  value,
-  percentage,
-}: {
-  title: any;
-  value: any;
-  percentage: number;
-}) => {
-  const isPositive = percentage >= 0;
-  const textColorClass = isPositive ? "text-green-600" : "text-red-600";
-  const Arrow = isPositive ? ArrowUpIcon : ArrowDownIcon;
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [allComplaintsRes, categoriesRes, resolutionStatusRes] = await Promise.all([
+        fetch(`${API_URL}complaints/all`),
+        fetch(`${API_URL}complaints/categories`),
+        fetch(`${API_URL}complaints/resolution_status`)
+      ]);
+      
 
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className={`text-xs flex items-center ${textColorClass}`}>
-          <Arrow className="w-3 h-3 mr-1" />
-          {Math.abs(percentage).toFixed(1)}% from last month
-        </p>
-      </CardContent>
-    </Card>
-  );
-};
+      const allComplaintsData = await allComplaintsRes.json();
+      const categoriesData = await categoriesRes.json();
+      const resolutionStatusData = await resolutionStatusRes.json();
+      console.log(categoriesData)
+      setComplaints(allComplaintsData.complaints);
+      setTotalComplaints(allComplaintsData.total_complaints);
+      setCategories(categoriesData.categories);
+      setResolutionStatus(resolutionStatusData);
+    } catch (err) {
+      setError('Failed to fetch data');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-export default function AdminDashboard() {
+
+  const toggleResolution = (id) => {
+    setComplaints(complaints.map(complaint => 
+      complaint.id === id 
+        ? { ...complaint, metadata: { ...complaint.metadata, resolved: !complaint.metadata.resolved } }
+        : complaint
+    ));
+  };
+
+  const updateAdminNote = (id, note) => {
+    setAdminNotes({ ...adminNotes, [id]: note });
+  };
+
+
+
+
+
+
+  
+  const fetchSimilarComplaints = async () => {
+    try {
+      const response = await fetch(`${API_URL}complaints/similar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ complaint: complaintTextForSimilar })
+      });
+      const data = await response.json();
+      setSimilarComplaints(data.similar_complaints);
+    } catch (err) {
+      console.error('Error fetching similar complaints:', err);
+    }
+  };
+
+  const pieChartData = [
+    { name: 'Resolved', value: resolutionStatus.resolved },
+    { name: 'Unresolved', value: resolutionStatus.unresolved },
+  ];
+
+  const barChartData = Object.entries(categories).map(([category, count]) => ({
+    category,
+    count,
+  }));
+
+  // Pagination
+  const indexOfLastComplaint = currentPage * complaintsPerPage;
+  const indexOfFirstComplaint = indexOfLastComplaint - complaintsPerPage;
+  const currentComplaints = complaints.slice(indexOfFirstComplaint, indexOfLastComplaint);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MetricCard
-          title="Total Revenue"
-          value="$45,231.89"
-          percentage={20.1}
-        />
-        <MetricCard title="New Customers" value="+2350" percentage={180.1} />
-        <MetricCard title="Active Users" value="12,234" percentage={19} />
-        <MetricCard title="Sales" value="2,345" percentage={-7} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Complaints</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalComplaints}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Complaint Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={pieChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-2">
+          <CardHeader>
+            <CardTitle>Complaint Categories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={barChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="category" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* You can add your charts here */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Sub-category</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Summary</TableHead>
+            <TableHead>Admin Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {currentComplaints.map((complaint) => (
+            <TableRow key={complaint.id}>
+              <TableCell>{complaint.id}</TableCell>
+              <TableCell>{complaint.metadata.product}</TableCell>
+              <TableCell>{complaint.metadata.sub_product}</TableCell>
+              <TableCell>{complaint.metadata.resolved ? 'Resolved' : 'Unresolved'}</TableCell>
+              <TableCell>{complaint.metadata.summary}</TableCell>
+              <TableCell>
+                <Button onClick={() => toggleResolution(complaint.id)}>
+                  {complaint.metadata.resolved ? 'Mark Unresolved' : 'Mark Resolved'}
+                </Button>
+                <Input
+                  placeholder="Admin note"
+                  value={adminNotes[complaint.id] || ''}
+                  onChange={(e) => updateAdminNote(complaint.id, e.target.value)}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <div className="mt-4 flex justify-between items-center">
+        <Button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+          Previous
+        </Button>
+        <span>Page {currentPage} of {Math.ceil(complaints.length / complaintsPerPage)}</span>
+        <Button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(complaints.length / complaintsPerPage)}>
+          Next
+        </Button>
+      </div>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Find Similar Complaints</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex space-x-2">
+            <Input
+              placeholder="Enter complaint text"
+              value={complaintTextForSimilar}
+              onChange={(e) => setComplaintTextForSimilar(e.target.value)}
+            />
+            <Button onClick={fetchSimilarComplaints}>Find Similar</Button>
+          </div>
+          {similarComplaints.length > 0 && (
+            <Table className="mt-4">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Summary</TableHead>
+                  <TableHead>Similarity Score</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {similarComplaints.map((complaint) => (
+                  <TableRow key={complaint.id}>
+                    <TableCell>{complaint.id}</TableCell>
+                    <TableCell>{complaint.summary}</TableCell>
+                    <TableCell>{complaint.similarity_score.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
+
+export default AdminDashboard;
