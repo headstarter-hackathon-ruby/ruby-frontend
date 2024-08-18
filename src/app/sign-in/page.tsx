@@ -62,7 +62,7 @@ export default function Signin() {
       setError("Invalid email or password");
       console.log(error);
     } else {
-      router.push("/admin-dashboard");
+      router.push("/dashboard");
     }
 
     setIsLoading(false);
