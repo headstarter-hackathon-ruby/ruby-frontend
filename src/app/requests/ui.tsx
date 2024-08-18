@@ -101,8 +101,7 @@ export default function RequestsUI(props: Complaint) {
 
   const renderComplaintCard = (complaint: any) => (
     <Card
-      className={`mb-4 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden ${
-        complaint.resolved === "true" ? "bg-green-50" : "bg-red-50"
+      className={`mb-4 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden bg-requestsBg  
       }`}
       onClick={() => handleComplaintClick(complaint)}
     >
@@ -111,7 +110,7 @@ export default function RequestsUI(props: Complaint) {
           complaint.resolved === "true" ? "bg-green-500" : "bg-red-500"
         }`}
       />
-      <CardHeader className="flex flex-row text-black items-center justify-between">
+      <CardHeader className="flex flex-row text-requestsFg items-center justify-between">
         <CardTitle className="text-lg">{complaint.summary}</CardTitle>
         {complaint.resolved === "true" ? (
           <CheckCircle className="h-5 w-5 text-green-500" />
@@ -119,7 +118,7 @@ export default function RequestsUI(props: Complaint) {
           <XCircle className="h-5 w-5 text-red-500" />
         )}
       </CardHeader>
-      <CardContent className="text-black">
+      <CardContent className="text-requestsFg2">
         <p>
           <strong>Product:</strong> {complaint.product}
         </p>

@@ -10,6 +10,9 @@ import { Camera, Mic, Send, User, Bot, Loader2 } from "lucide-react";
 import { set } from "react-hook-form";
 import toast from "react-hot-toast";
 import { createClient } from "@/app/utils/supabase/client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 export default function Header() {
   const { theme } = useTheme();
   const router = useRouter();
@@ -46,10 +49,21 @@ export default function Header() {
   const handleAdminPageRedirect = () => {
     router.push("/admin");
   };
+  const pathname = usePathname();
+  const isDashboard = pathname === "/dashboard";
 
   return (
     <nav className="flex justify-between items-center mb-8">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      {isDashboard ? (
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+      ) : (
+        <Link
+          href="/dashboard"
+          className="text-2xl font-bold hover:underline cursor-pointer"
+        >
+          Dashboard
+        </Link>
+      )}
       <div className="flex items-center space-x-4">
         {userId && userId === "f6b625bc-e878-4fc2-9855-fb51e312cfba" ? (
           <>
