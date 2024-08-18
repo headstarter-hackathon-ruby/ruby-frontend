@@ -4,6 +4,8 @@
 
 @layer base {
   :root {
+    --tooltip-bg: 210 40% 96%;
+    --tooltip-fg: 0 0% 0%;
     --requests-bg: 210 40% 96%;
     --requests-foreground: 0 0% 0%;
     --requests-foreground-2: 221 48% 13%;
@@ -35,6 +37,8 @@
   }
 
   .dark {
+    --tooltip-bg: 217 33% 17%;
+    --tooltip-fg: 0 0% 100%;
     --requests-bg: 217 33% 17%;
     --requests-foreground: 0 0% 100%;
     --requests-foreground-2: 213 22% 65%;

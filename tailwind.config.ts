@@ -19,6 +19,8 @@ const config = {
     },
     extend: {
       colors: {
+        tooltipBg: "hsl(var(--tooltip-bg))",
+        tooltipFg: "hsl(var(--tooltip-fg))",
         requestsBg: "hsl(var(--requests-bg))",
         requestsFg: "hsl(var(--requests-foreground))",
         requestsFg2: "hsl(var(--requests-foreground-2))",

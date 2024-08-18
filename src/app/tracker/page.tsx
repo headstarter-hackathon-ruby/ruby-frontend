@@ -159,7 +159,7 @@ export default function Tracker() {
   const deleteTransaction = async (transactionId: string) => {
     try {
       const response = await fetch(`${API_URL}delete_transaction`, {
-        method: "DELETE",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           transaction_id: transactionId,
@@ -543,11 +543,11 @@ export default function Tracker() {
                       const data = payload[0].payload;
                       const value = data.income || -data.expense;
                       return (
-                        <div className="custom-tooltip rounded-lg bg-slate-800 p-2 border border-slate-600">
-                          <p className="label">{`${data.name} : $${Math.abs(
-                            value
-                          ).toFixed(2)}`}</p>
-                          <p className="desc">
+                        <div className="custom-tooltip rounded-lg bg-tooltipBg p-2 ">
+                          <p className="label text-tooltipFg">{`${
+                            data.name
+                          } : $${Math.abs(value).toFixed(2)}`}</p>
+                          <p className="desc text-tooltipFg">
                             {value >= 0 ? "Income" : "Expense"}
                           </p>
                         </div>
