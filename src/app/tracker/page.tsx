@@ -178,6 +178,17 @@ export default function Tracker() {
     return acc;
   }, {});
 
+  const roundPredictions = (predictions: Prediction[]): Prediction[] => {
+    return predictions.map(prediction => ({
+      ...prediction,
+      predicted_balance: parseFloat((Math.round(prediction.predicted_balance * 100) / 100).toFixed(2)),
+      upper_balance: parseFloat((Math.round(prediction.upper_balance * 100) / 100).toFixed(2)),
+      lower_balance: parseFloat((Math.round(prediction.lower_balance * 100) / 100).toFixed(2)),
+    }));
+  };
+
+  const roundedPredictions = roundPredictions(predictions);
+
   return (
     <div
       className={`min-h-screen  w-full p-4 ${
@@ -402,7 +413,7 @@ export default function Tracker() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <CartesianGrid strokeDasharray="3 3" />
-                <Tooltip />
+                <Tooltip cursor={{ fill: "transparent" }} />
                 <Legend />
                 <Bar dataKey="value" fill="#82ca9d" />
               </BarChart>
@@ -449,9 +460,9 @@ export default function Tracker() {
             <Button onClick={generatePredictions} className="mb-4">
               Generate Predictions
             </Button>
-            {predictions.length > 0 && (
+            {roundedPredictions.length > 0 && (
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={predictions}>
+                <LineChart data={roundedPredictions}>
                   <XAxis dataKey="date" />
                   <YAxis />
                   <CartesianGrid strokeDasharray="3 3" />
