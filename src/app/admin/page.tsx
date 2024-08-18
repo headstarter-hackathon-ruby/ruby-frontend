@@ -274,14 +274,14 @@ const AdminDashboard: React.FC = () => {
             <CardTitle>Complaint Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <PieChart>
                 <Pie
                   data={pieChartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={50}
+                  outerRadius={70}
                   fill="#8884d8"
                   paddingAngle={5}
                   dataKey="value"
@@ -307,14 +307,14 @@ const AdminDashboard: React.FC = () => {
             <CardTitle>Complaint Categories</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={barChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="category" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="count" fill="#8884d8" />
+                <Bar dataKey="count" fill="#3b82f6" /> {/* Changed to blue */}
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -335,7 +335,7 @@ const AdminDashboard: React.FC = () => {
           <Filter className="text-gray-400" />
           <Select
             value={statusFilter}
-            onValueChange={(value: any) => setStatusFilter(value)}
+            onValueChange={(value) => setStatusFilter(value)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -362,11 +362,7 @@ const AdminDashboard: React.FC = () => {
         </TableHeader>
         <TableBody>
           {currentComplaints.map((complaint) => (
-            <TableRow
-              key={complaint.id}
-              // className={
-              // }
-            >
+            <TableRow key={complaint.id}>
               <TableCell>{complaint.id}</TableCell>
               <TableCell>{complaint.metadata.product}</TableCell>
               <TableCell>{complaint.metadata.sub_product}</TableCell>
@@ -415,7 +411,7 @@ const AdminDashboard: React.FC = () => {
                   </Button>
                 </div>
                 {complaint.metadata.admin_text && (
-                  <div className="mt-2 text-sm  p-2 rounded">
+                  <div className="mt-2 text-sm p-2 rounded">
                     <strong>Note:</strong> {complaint.metadata.admin_text}
                   </div>
                 )}
