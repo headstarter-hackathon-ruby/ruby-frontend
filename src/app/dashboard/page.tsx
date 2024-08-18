@@ -209,6 +209,8 @@ export default function Dashboard() {
               },
             ]);
           }, 1000);
+
+          setSelectedImageFile(null);
         } catch (error: any) {
           console.error("Error uploading image:", error);
           const errorMessage = `Error uploading image: ${
@@ -292,6 +294,7 @@ export default function Dashboard() {
               },
             ]);
           }, 1000);
+          setSelectedAudioFile(null);
         } catch (error: any) {
           console.error("Error uploading audio:", error);
           const errorMessage = `Error uploading audio: ${
