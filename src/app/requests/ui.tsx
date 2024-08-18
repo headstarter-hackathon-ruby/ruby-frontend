@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link'
 import { useState } from "react";
 
 interface Complaint {
@@ -61,27 +62,25 @@ export default function RequestsUI(props: Complaint) {
     try {
       setIsLoading(true);
       await handleResolve(selectedComplaint, solution);
+
       const updatedComplaint = {
         ...selectedComplaint,
         resolved: selectedComplaint.resolved === "true" ? "false" : "true",
       };
-
-      if (updatedComplaint.resolved === "true") {
-        setResolvedComplaints([...resolvedComplaints, updatedComplaint]);
-        setUnresolvedComplaints(
-          unresolvedComplaints.filter(
-            (complaint) => complaint.id !== updatedComplaint.id
-          )
+  
+      if (updatedComplaint.resolved === "true") { 
+        // Mark selected as resolved
+        setResolvedComplaints((prev) => [...prev, updatedComplaint]);
+        setUnresolvedComplaints((prev) =>
+          prev.filter((complaint) => complaint.text !== updatedComplaint.text)
         );
       } else {
-        setUnresolvedComplaints([...unresolvedComplaints, updatedComplaint]);
-        setResolvedComplaints(
-          resolvedComplaints.filter(
-            (complaint) => complaint.id !== updatedComplaint.id
-          )
+        // Mark selected as unresolved
+        setUnresolvedComplaints((prev) => [...prev, updatedComplaint]);
+        setResolvedComplaints((prev) =>
+          prev.filter((complaint) => complaint.text !== updatedComplaint.text)
         );
       }
-
       closeDialog();
     } catch (error) {
       console.error("Error resolving complaint:", error);
@@ -92,7 +91,13 @@ export default function RequestsUI(props: Complaint) {
 
   return (
     <div className="container mx-auto">
-      <h1 className="text-center text-2xl font-bold mb-4">Requests</h1>
+      <nav className="bg-black fixed top-0 left-0 w-full p-4 text-white flex justify-between items-center">
+        <h1 className="text-xl font-bold">Requests Page</h1>
+        <Link href="/dashboard" className="text-xl font-bold p-4">
+          Dashboard
+        </Link>
+      </nav>
+      <h1 className="text-center text-2xl font-bold mt-12 mb-4">Requests</h1>
       <div className="flex justify-between">
         <div className="w-1/2 p-4 mr-2">
           <h2 className="text-xl text-center font-semibold mb-2">

@@ -12,7 +12,7 @@ const fetchComplaints = async (userId: string) => {
 
   const queryResponse = await index.namespace("rag_complaints").query({
     vector: Array(1536).fill(0),
-    topK: 10000,
+    topK: 50,
     includeMetadata: true,
     filter: {
       userID: { $eq: userId },
