@@ -28,6 +28,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
@@ -55,14 +56,14 @@ export default function Tracker() {
   const [editingGoal, setEditingGoal] = useState<boolean>(false);
   const [tempGoalBudget, setTempGoalBudget] = useState<string>("");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [expenses, setExpenses] = useState<Transaction[]>([]);
+
   const [newExpense, setNewExpense] = useState<Transaction>({
     id: "",
     transaction_name: "",
     amount: 0,
     date: "",
   });
-  const [income, setIncome] = useState<Transaction[]>([]);
+
   const [newIncome, setNewIncome] = useState<Transaction>({
     id: "",
     transaction_name: "",
@@ -512,15 +513,35 @@ export default function Tracker() {
               <BarChart
                 data={Object.entries(categoryData).map(([name, value]) => ({
                   name,
-                  value,
+                  income: value > 0 ? value : 0,
+                  expense: value < 0 ? Math.abs(value) : 0,
                 }))}
               >
                 <XAxis dataKey="name" />
                 <YAxis />
                 <CartesianGrid strokeDasharray="3 3" />
-                <Tooltip />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const value = data.income || -data.expense;
+                      return (
+                        <div className="custom-tooltip rounded-lg bg-slate-800 p-2 border border-slate-600">
+                          <p className="label">{`${data.name} : $${Math.abs(
+                            value
+                          ).toFixed(2)}`}</p>
+                          <p className="desc">
+                            {value >= 0 ? "Income" : "Expense"}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
                 <Legend />
-                <Bar dataKey="value" fill="#82ca9d" />
+                <Bar dataKey="income" name="Income" fill="#82ca9d" />
+                <Bar dataKey="expense" name="Expense" fill="#FF5733" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
