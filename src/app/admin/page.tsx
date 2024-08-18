@@ -62,6 +62,8 @@ interface SimilarComplaint {
   id: string;
   summary: string;
   similarity_score: number;
+  resolved: boolean;
+  admin_text: string;
 }
 
 export default function AdminDashboard() {
@@ -206,14 +208,16 @@ export default function AdminDashboard() {
   const fetchSimilarComplaints = async () => {
     setLoadingSimilar(true);
     try {
+      console.log("Fetching similar complaints for:", complaintTextForSimilar);
       const response = await fetch(
         `${API_URL}complaints/similar?complaint=${encodeURIComponent(
           complaintTextForSimilar
         )}`
       );
       const data = await response.json();
-      setSimilarComplaints(data.similar_complaints || []);
-      console.log("Fetched similar complaints:", data.similar_complaints);
+      console.log("Similar complaints:", data);
+      setSimilarComplaints(data || []);
+      console.log("Fetched similar complaints:", data);
     } catch (err) {
       console.error("Error fetching similar complaints:", err);
       setError("Failed to fetch similar complaints. Please try again.");
@@ -222,6 +226,9 @@ export default function AdminDashboard() {
       setLoadingSimilar(false);
     }
   };
+  useEffect(() => {
+    console.log("similar complaints", similarComplaints);
+  }, [similarComplaints]);
 
   const pieChartData = [
     { name: "Resolved", value: resolutionStatus.resolved },
@@ -497,7 +504,9 @@ export default function AdminDashboard() {
                 <TableRow>
                   <TableHead>ID</TableHead>
                   <TableHead>Summary</TableHead>
-                  <TableHead>Similarity Score</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Admin Text</TableHead>
+                  {/* <TableHead>Similarity Score</TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -506,8 +515,23 @@ export default function AdminDashboard() {
                     <TableCell>{complaint.id}</TableCell>
                     <TableCell>{complaint.summary}</TableCell>
                     <TableCell>
-                      {complaint.similarity_score.toFixed(2)}
+                      <Badge
+                        variant={complaint.resolved ? "outline" : "destructive"}
+                        className={
+                          complaint.resolved
+                            ? "bg-green-100 text-green-800 hover:bg-green-100"
+                            : ""
+                        }
+                      >
+                        {complaint.resolved ? "Resolved" : "Unresolved"}
+                      </Badge>
                     </TableCell>
+                    <TableCell>
+                      {complaint.admin_text || "No admin text"}
+                    </TableCell>
+                    {/* <TableCell>
+                      {complaint.similarity_score?.toFixed(2) ?? "0.00"}
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
