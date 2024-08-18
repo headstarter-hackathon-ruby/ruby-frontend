@@ -13,6 +13,12 @@ import { set } from "react-hook-form";
 import toast from "react-hot-toast";
 import Header from "@/components/ui/navbar";
 
+const ALLOWED_IMAGE_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/jpg",
+];
 //whisper only accepts these audio formats
 const ALLOWED_AUDIO_FILE_TYPES = [
   // MP3
@@ -72,6 +78,9 @@ export default function Dashboard() {
   const audioFileInputRef = useRef<HTMLInputElement>(null);
   const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
   const [audioUploadError, setAudioUploadError] = useState<string | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function getUserInfo() {
@@ -103,20 +112,120 @@ export default function Dashboard() {
     audioFileInputRef.current?.click();
   };
 
+  const handleImageButton = async () => {
+    imageFileInputRef.current?.click();
+  };
+
   const handleUploadAudio = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedAudioFile(e.target.files[0]);
     }
   };
+
+  const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImageFile(e.target.files[0]);
+    }
+  };
+
   useEffect(() => {
     console.log(selectedAudioFile);
   }, [selectedAudioFile]);
 
+  useEffect(() => {
+    console.log(selectedImageFile);
+  }, [selectedImageFile]);
+
   const handleSendMessage = async () => {
     console.log("Sending message or uploading file");
-    if (inputText.trim() || selectedAudioFile) {
+    if (inputText.trim() || selectedAudioFile || selectedImageFile) {
       setLoading(true);
       setAudioUploadError(null); // Clear any previous errors
+      setImageUploadError(null);
+
+      //Image File process
+
+      if (selectedImageFile) {
+        console.log("Attempting to upload image file:", selectedImageFile.name);
+        if (!ALLOWED_IMAGE_FILE_TYPES.includes(selectedImageFile.type)) {
+          console.log("Invalid file type:", selectedImageFile.type);
+          const errorMessage =
+            "Invalid image file type. Please upload a valid image file.";
+          toast.error(errorMessage);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: "bot",
+              content: errorMessage,
+            },
+          ]);
+          setImageUploadError(errorMessage);
+          setLoading(false);
+          return;
+        }
+
+        try {
+          const { data, error } = await supabase.storage
+            .from("images")
+            .upload("public/" + selectedImageFile.name, selectedImageFile);
+
+          console.log("Image uploaded successfully:", data);
+          const { data: publicUrlData } = supabase.storage
+            .from("images")
+            .getPublicUrl("public/" + selectedImageFile.name);
+
+          const imageUrl = publicUrlData.publicUrl;
+          console.log("Image URL:", imageUrl);
+
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: "user",
+              content: `Uploaded image: ${selectedImageFile.name}`,
+            },
+          ]);
+
+          const response = await fetch(`${API_URL}transcribe/image`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ image: imageUrl, userID: userId }),
+          });
+          const messageData = await response.json();
+          const textResponse = messageData.result.textResponse;
+          console.log("textResponse", textResponse);
+
+          // Simulate bot response
+          setTimeout(() => {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                type: "bot",
+                content:
+                  textResponse ||
+                  "Thank you for your complaint. We've recorded it and will get back to you soon.",
+              },
+            ]);
+          }, 1000);
+        } catch (error: any) {
+          console.error("Error uploading image:", error);
+          const errorMessage = `Error uploading image: ${
+            error.message || "Unknown error"
+          }`;
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: "bot",
+              content: errorMessage,
+            },
+          ]);
+          setImageUploadError(errorMessage);
+          toast.error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      }
 
       //Audio File process
 
@@ -388,8 +497,9 @@ export default function Dashboard() {
               <Mic className="mr-2 h-4 w-4" />
               {selectedAudioFile ? selectedAudioFile.name : "Upload Audio"}
             </Button>
-            <Button disabled={loading}>
-              <Camera className="mr-2 h-4 w-4" /> Upload Image
+            <Button disabled={loading} onClick={handleImageButton}>
+              <Camera className="mr-2 h-4 w-4" />{" "}
+              {selectedImageFile ? selectedImageFile.name : "Upload Image"}
             </Button>
             <input
               type="file"
@@ -397,6 +507,13 @@ export default function Dashboard() {
               ref={audioFileInputRef}
               style={{ display: "none" }}
               onChange={handleUploadAudio}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              ref={imageFileInputRef}
+              style={{ display: "none" }}
+              onChange={handleUploadImage}
             />
           </div>
         </CardContent>
