@@ -183,6 +183,30 @@ export default function Dashboard() {
               content: `Uploaded image: ${selectedImageFile.name}`,
             },
           ]);
+
+          const response = await fetch(`${API_URL}transcribe/image`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ image: imageUrl, userID: userId }),
+          });
+          const messageData = await response.json();
+          const textResponse = messageData.result.textResponse;
+          console.log("textResponse", textResponse);
+
+          // Simulate bot response
+          setTimeout(() => {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                type: "bot",
+                content:
+                  textResponse ||
+                  "Thank you for your complaint. We've recorded it and will get back to you soon.",
+              },
+            ]);
+          }, 1000);
         } catch (error: any) {
           console.error("Error uploading image:", error);
           const errorMessage = `Error uploading image: ${
