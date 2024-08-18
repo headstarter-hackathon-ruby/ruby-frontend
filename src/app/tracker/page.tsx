@@ -36,7 +36,7 @@ import { Separator } from "@/components/ui/separator";
 import { Trash2 } from "lucide-react";
 
 interface Transaction {
-  id: string;
+  id: number;
   transaction_name: string;
   amount: number;
   date: string;
@@ -58,14 +58,14 @@ export default function Tracker() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const [newExpense, setNewExpense] = useState<Transaction>({
-    id: "",
+    id: 0,
     transaction_name: "",
     amount: 0,
     date: "",
   });
 
   const [newIncome, setNewIncome] = useState<Transaction>({
-    id: "",
+    id: 0,
     transaction_name: "",
     amount: 0,
     date: "",
@@ -74,6 +74,56 @@ export default function Tracker() {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const { theme } = useTheme();
   const supabase = createClient();
+
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active: boolean;
+    payload: any[];
+    label: string;
+  }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div className="custom-tooltip rounded-lg bg-tooltipBg p-2">
+          <p className="label text-tooltipFg">{`${
+            data.name
+          } : $${data.value.toFixed(2)}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const PredictionTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active: boolean;
+    payload: any[];
+    label: string;
+  }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip rounded-lg bg-tooltipBg p-2">
+          <p className="label text-tooltipFg">{`Date: ${label}`}</p>
+          {payload.map((entry, index) => (
+            <p
+              key={index}
+              className="text-tooltipFg"
+              style={{ color: entry.color }}
+            >
+              {`${entry.name}: $${entry.value.toFixed(2)}`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   useEffect(() => {
     async function getUserInfo() {
@@ -133,7 +183,7 @@ export default function Tracker() {
       });
       if (response.ok) {
         fetchTransactions(userId);
-        setNewExpense({ id: "", transaction_name: "", amount: 0, date: "" });
+        setNewExpense({ id: 0, transaction_name: "", amount: 0, date: "" });
       }
     } catch (error) {
       console.error("Error adding transaction:", error);
@@ -149,21 +199,20 @@ export default function Tracker() {
       });
       if (response.ok) {
         fetchTransactions(userId);
-        setNewIncome({ id: "", transaction_name: "", amount: 0, date: "" });
+        setNewIncome({ id: 0, transaction_name: "", amount: 0, date: "" });
       }
     } catch (error) {
       console.error("Error adding transaction:", error);
     }
   };
 
-  const deleteTransaction = async (transactionId: string) => {
+  const deleteTransaction = async (transactionId: number) => {
     try {
       const response = await fetch(`${API_URL}delete_transaction`, {
-        method: "POST",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           transaction_id: transactionId,
-          user_id: userId,
         }),
       });
       if (response.ok) {
@@ -468,7 +517,15 @@ export default function Tracker() {
                     fill="#4CAF50"
                     label
                   />
-                  <Tooltip />
+                  <Tooltip
+                    content={({ active, payload, label }) => (
+                      <CustomTooltip
+                        active={active || false}
+                        payload={payload || []}
+                        label={label}
+                      />
+                    )}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -491,7 +548,15 @@ export default function Tracker() {
                     fill="#FF5733"
                     label
                   />
-                  <Tooltip />
+                  <Tooltip
+                    content={({ active, payload, label }) => (
+                      <CustomTooltip
+                        active={active || false}
+                        payload={payload || []}
+                        label={label}
+                      />
+                    )}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -513,7 +578,15 @@ export default function Tracker() {
                 <XAxis dataKey="date" />
                 <YAxis />
                 <CartesianGrid strokeDasharray="3 3" />
-                <Tooltip />
+                <Tooltip
+                  content={({ active, payload, label }) => (
+                    <CustomTooltip
+                      active={active || false}
+                      payload={payload || []}
+                      label={label}
+                    />
+                  )}
+                />
                 <Legend />
                 <Line type="monotone" dataKey="amount" stroke="#8884d8" />
               </LineChart>
@@ -609,7 +682,15 @@ export default function Tracker() {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <CartesianGrid strokeDasharray="3 3" />
-                  <Tooltip />
+                  <Tooltip
+                    content={({ active, payload, label }) => (
+                      <PredictionTooltip
+                        active={active || false}
+                        payload={payload || []}
+                        label={label}
+                      />
+                    )}
+                  />
                   <Legend />
                   <Line
                     type="monotone"
