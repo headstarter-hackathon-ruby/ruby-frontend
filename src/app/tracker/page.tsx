@@ -36,7 +36,8 @@ import { Separator } from "@/components/ui/separator";
 import { Trash2 } from "lucide-react";
 
 interface Transaction {
-  id: number;
+  id?: number;
+  transaction_id?: number;
   transaction_name: string;
   amount: number;
   date: string;
@@ -58,7 +59,7 @@ export default function Tracker() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const [newExpense, setNewExpense] = useState<Transaction>({
-    id: 0,
+    transaction_id: 0,
     transaction_name: "",
     amount: 0,
     date: "",
@@ -124,6 +125,9 @@ export default function Tracker() {
     }
     return null;
   };
+  useEffect(() => {
+    console.log(transactions);
+  }, [transactions]);
 
   useEffect(() => {
     async function getUserInfo() {
@@ -183,7 +187,12 @@ export default function Tracker() {
       });
       if (response.ok) {
         fetchTransactions(userId);
-        setNewExpense({ id: 0, transaction_name: "", amount: 0, date: "" });
+        setNewExpense({
+          transaction_id: 0,
+          transaction_name: "",
+          amount: 0,
+          date: "",
+        });
       }
     } catch (error) {
       console.error("Error adding transaction:", error);
@@ -195,19 +204,28 @@ export default function Tracker() {
       const response = await fetch(`${API_URL}add_transaction`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newIncome, user_id: userId }),
+        body: JSON.stringify({
+          ...newIncome,
+          amount: Math.abs(newIncome.amount), // Ensure expense is negative
+          user_id: userId,
+        }),
       });
       if (response.ok) {
         fetchTransactions(userId);
-        setNewIncome({ id: 0, transaction_name: "", amount: 0, date: "" });
+        setNewExpense({
+          transaction_id: 0,
+          transaction_name: "",
+          amount: 0,
+          date: "",
+        });
       }
     } catch (error) {
       console.error("Error adding transaction:", error);
     }
   };
-
   const deleteTransaction = async (transactionId: number) => {
     try {
+      console.log(transactionId);
       const response = await fetch(`${API_URL}delete_transaction`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -389,7 +407,7 @@ export default function Tracker() {
                     }
                   />
                 </div>
-                <Button onClick={() => addTransaction()} className="w-full">
+                <Button onClick={addTransaction} className="w-full">
                   Add Expense
                 </Button>
               </div>
@@ -403,10 +421,10 @@ export default function Tracker() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="incomeName">Income Source</Label>
+                  <Label htmlFor="incomeName">Income Name</Label>
                   <Input
                     id="incomeName"
-                    placeholder="Enter income source"
+                    placeholder="Enter income name"
                     value={newIncome.transaction_name}
                     onChange={(e) =>
                       setNewIncome({
@@ -445,7 +463,7 @@ export default function Tracker() {
                     }
                   />
                 </div>
-                <Button onClick={() => addIncome()} className="w-full">
+                <Button onClick={addIncome} className="w-full">
                   Add Income
                 </Button>
               </div>
@@ -484,7 +502,7 @@ export default function Tracker() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteTransaction(t.id)}
+                          onClick={() => deleteTransaction(t.transaction_id!)}
                         >
                           <Trash2 className="text-red-500" />
                         </Button>
