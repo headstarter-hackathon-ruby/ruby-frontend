@@ -4,6 +4,9 @@
 
 @layer base {
   :root {
+    --requests-bg: 210 40% 96%;
+    --requests-foreground: 0 0% 0%;
+    --requests-foreground-2: 221 48% 13%;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -32,6 +35,9 @@
   }
 
   .dark {
+    --requests-bg: 217 33% 17%;
+    --requests-foreground: 0 0% 100%;
+    --requests-foreground-2: 213 22% 65%;
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;

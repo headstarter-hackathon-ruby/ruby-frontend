@@ -12,6 +12,7 @@ import { API_URL } from "../config";
 import { set } from "react-hook-form";
 import toast from "react-hot-toast";
 import Header from "@/components/ui/navbar";
+import Directions from "./directions";
 
 const ALLOWED_IMAGE_FILE_TYPES = [
   "image/jpeg",
@@ -379,13 +380,13 @@ export default function Dashboard() {
       <Header />
 
       <div className="flex flex-col gap-4 mb-8">
-        <h1 className="text-4xl font-bold ">Welcome</h1>
-        <p className="text-2xl">
+        <h1 className="text-4xl font-bold">Welcome</h1>
+        <p className="text-2xl text-requestsFg2">
           Welcome to your dashboard. Here you can manage your account and submit
           complaints.
         </p>
       </div>
-
+      <Directions />
       <Card className={`mb-8 ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
         <CardHeader>
           <CardTitle>Submit a Complaint</CardTitle>
