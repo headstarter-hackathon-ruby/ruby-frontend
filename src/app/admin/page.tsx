@@ -117,39 +117,31 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const toggleResolution = async (id: string) => {
+  const toggleResolution = async (id: string, index: number) => {
     try {
-      const complaintToUpdate = complaints.find((c) => c.id === id);
-      if (!complaintToUpdate) return;
+      const res = await fetch(
+        `${API_URL}complaints/resolution?id=${encodeURIComponent(id)}`
+      );
+      const data = await fetch(
+        `${API_URL}complaints/current?id=${encodeURIComponent(id)}`
+      );
+      if (data.ok) {
+        const jsonRes = await data.json();
+        console.log(jsonRes.admin_text);
+        const resolved = jsonRes.resolved;
 
-      const newResolvedStatus = !complaintToUpdate.metadata.resolved;
-
-      const response = await fetch(`${API_URL}complaints/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-          resolved: newResolvedStatus,
-        }),
-      });
-
-      if (response.ok) {
-        setComplaints(
-          complaints.map((complaint) =>
-            complaint.id === id
-              ? {
-                  ...complaint,
-                  metadata: {
-                    ...complaint.metadata,
-                    resolved: newResolvedStatus,
-                  },
-                }
-              : complaint
-          )
-        );
-        fetchData(); // Refresh all data
+        // Update the complaints state with the new admin note using the index
+        setComplaints((prevComplaints) => {
+          const updatedComplaints = [...prevComplaints];
+          updatedComplaints[index] = {
+            ...updatedComplaints[index],
+            metadata: {
+              ...updatedComplaints[index].metadata,
+              resolved: resolved,
+            },
+          };
+          return updatedComplaints;
+        });
       } else {
         throw new Error("Failed to update resolution status");
       }
@@ -163,59 +155,49 @@ const AdminDashboard: React.FC = () => {
     setTempAdminNotes({ ...tempAdminNotes, [id]: note });
   };
 
-  const submitAdminNote = async (id: string) => {
+  const submitAdminNoteUpdate = async (
+    note: string,
+    id: string,
+    index: number
+  ) => {
     if (tempAdminNotes[id]) {
       try {
-        const response = await fetch(`${API_URL}complaints/update`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: id,
-            admin_text: tempAdminNotes[id],
-          }),
-        });
+        await fetch(
+          `${API_URL}complaints/admin_message?note=${encodeURIComponent(
+            note
+          )}&id=${encodeURIComponent(id)}`
+        );
+        const data = await fetch(
+          `${API_URL}complaints/current?id=${encodeURIComponent(id)}`
+        );
+        if (data.ok) {
+          const jsonRes = await data.json();
+          console.log(jsonRes.admin_text);
+          const admin_text = jsonRes.admin_text;
 
-        if (response.ok) {
-          setComplaints(
-            complaints.map((complaint) =>
-              complaint.id === id
-                ? {
-                    ...complaint,
-                    metadata: {
-                      ...complaint.metadata,
-                      admin_text: tempAdminNotes[id],
-                    },
-                  }
-                : complaint
-            )
-          );
-          setTempAdminNotes({ ...tempAdminNotes, [id]: "" });
-          fetchData(); // Refresh all data
+          // Update the complaints state with the new admin note using the index
+          setComplaints((prevComplaints) => {
+            const updatedComplaints = [...prevComplaints];
+            updatedComplaints[index] = {
+              ...updatedComplaints[index],
+              metadata: {
+                ...updatedComplaints[index].metadata,
+                admin_text: admin_text,
+              },
+            };
+            return updatedComplaints;
+          });
+
+          // Clear the temporary admin note
+          setTempAdminNotes((prevNotes) => {
+            const newNotes = { ...prevNotes };
+            delete newNotes[id];
+            return newNotes;
+          });
         } else {
           throw new Error("Failed to update admin note");
         }
       } catch (error) {
-        console.error("Error updating admin note:", error);
-        setError("Failed to update admin note. Please try again.");
-      }
-    }
-  };
-
-  const submitAdminNoteUpdate = async (id: string) => {
-    if (tempAdminNotes[id]) {
-      try {
-        const res = await fetch(`${API_URL}complaints/admin_message?id=${encodeURIComponent(id)}`);
-        const data = await fetch(`${API_URL}complaints/current?id=${encodeURIComponent(id)}`);
-        if (data.ok) {
-          const jsonRes = await data.json();
-          const admin_text = jsonRes.admin_text;
-          setTempAdminNotes({ ...tempAdminNotes, [id]: admin_text });
-        } else {
-          throw new Error("Failed to update admin note");
-        }
-        } catch (error) {
         console.error("Error updating admin note:", error);
         setError("Failed to update admin note. Please try again.");
       }
@@ -406,7 +388,12 @@ const AdminDashboard: React.FC = () => {
               <TableCell>{complaint.metadata.summary}</TableCell>
               <TableCell>
                 <Button
-                  onClick={() => toggleResolution(complaint.id)}
+                  onClick={() =>
+                    toggleResolution(
+                      complaint.id,
+                      complaints.findIndex((c) => c.id === complaint.id)
+                    )
+                  }
                   variant={
                     complaint.metadata.resolved ? "destructive" : "default"
                   }
@@ -426,7 +413,13 @@ const AdminDashboard: React.FC = () => {
                     className="mr-2"
                   />
                   <Button
-                    onClick={() => submitAdminNoteUpdate(complaint.id)}
+                    onClick={() =>
+                      submitAdminNoteUpdate(
+                        tempAdminNotes[complaint.id],
+                        complaint.id,
+                        complaints.findIndex((c) => c.id === complaint.id)
+                      )
+                    }
                     disabled={!tempAdminNotes[complaint.id]}
                     size="sm"
                   >
