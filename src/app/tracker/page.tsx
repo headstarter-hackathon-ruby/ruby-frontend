@@ -32,8 +32,10 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Trash2 } from "lucide-react";
 
 interface Transaction {
+  id: string;
   transaction_name: string;
   amount: number;
   date: string;
@@ -53,11 +55,21 @@ export default function Tracker() {
   const [editingGoal, setEditingGoal] = useState<boolean>(false);
   const [tempGoalBudget, setTempGoalBudget] = useState<string>("");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [newTransaction, setNewTransaction] = useState<Transaction>({
+  const [expenses, setExpenses] = useState<Transaction[]>([]);
+  const [newExpense, setNewExpense] = useState<Transaction>({
+    id: "",
     transaction_name: "",
     amount: 0,
     date: "",
   });
+  const [income, setIncome] = useState<Transaction[]>([]);
+  const [newIncome, setNewIncome] = useState<Transaction>({
+    id: "",
+    transaction_name: "",
+    amount: 0,
+    date: "",
+  });
+
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const { theme } = useTheme();
   const supabase = createClient();
@@ -112,14 +124,52 @@ export default function Tracker() {
       const response = await fetch(`${API_URL}add_transaction`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newTransaction, user_id: userId }),
+        body: JSON.stringify({
+          ...newExpense,
+          amount: -Math.abs(newExpense.amount), // Ensure expense is negative
+          user_id: userId,
+        }),
       });
       if (response.ok) {
         fetchTransactions(userId);
-        setNewTransaction({ transaction_name: "", amount: 0, date: "" });
+        setNewExpense({ id: "", transaction_name: "", amount: 0, date: "" });
       }
     } catch (error) {
       console.error("Error adding transaction:", error);
+    }
+  };
+
+  const addIncome = async () => {
+    try {
+      const response = await fetch(`${API_URL}add_transaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newIncome, user_id: userId }),
+      });
+      if (response.ok) {
+        fetchTransactions(userId);
+        setNewIncome({ id: "", transaction_name: "", amount: 0, date: "" });
+      }
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+    }
+  };
+
+  const deleteTransaction = async (transactionId: string) => {
+    try {
+      const response = await fetch(`${API_URL}delete_transaction`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transaction_id: transactionId,
+          user_id: userId,
+        }),
+      });
+      if (response.ok) {
+        fetchTransactions(userId);
+      }
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
     }
   };
 
@@ -225,61 +275,117 @@ export default function Tracker() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Add Transaction</CardTitle>
+              <CardTitle>Add Expenses</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="transactionName">Transaction Name</Label>
+                  <Label htmlFor="expenseName">Expense Name</Label>
                   <Input
-                    id="transactionName"
-                    placeholder="Enter transaction name"
-                    value={newTransaction.transaction_name}
+                    id="expenseName"
+                    placeholder="Enter expense name"
+                    value={newExpense.transaction_name}
                     onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
+                      setNewExpense({
+                        ...newExpense,
                         transaction_name: e.target.value,
                       })
                     }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="amount">Amount</Label>
+                  <Label htmlFor="expenseAmount">Amount</Label>
                   <Input
-                    id="amount"
+                    id="expenseAmount"
                     type="number"
                     placeholder="Enter amount"
-                    value={newTransaction.amount || ""}
+                    value={newExpense.amount || ""}
                     onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
+                      setNewExpense({
+                        ...newExpense,
                         amount: Number(e.target.value),
                       })
                     }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="date">Date</Label>
+                  <Label htmlFor="expenseDate">Date</Label>
                   <Input
-                    id="date"
+                    id="expenseDate"
                     type="date"
-                    value={newTransaction.date}
+                    value={newExpense.date}
                     onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
+                      setNewExpense({
+                        ...newExpense,
                         date: e.target.value,
                       })
                     }
                   />
                 </div>
-                <Button onClick={addTransaction} className="w-full">
-                  Add Transaction
+                <Button onClick={() => addTransaction()} className="w-full">
+                  Add Expense
                 </Button>
               </div>
             </CardContent>
           </Card>
 
           <Card>
+            <CardHeader>
+              <CardTitle>Add Income</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="incomeName">Income Source</Label>
+                  <Input
+                    id="incomeName"
+                    placeholder="Enter income source"
+                    value={newIncome.transaction_name}
+                    onChange={(e) =>
+                      setNewIncome({
+                        ...newIncome,
+                        transaction_name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="incomeAmount">Amount</Label>
+                  <Input
+                    id="incomeAmount"
+                    type="number"
+                    placeholder="Enter amount"
+                    value={newIncome.amount || ""}
+                    onChange={(e) =>
+                      setNewIncome({
+                        ...newIncome,
+                        amount: Number(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="incomeDate">Date</Label>
+                  <Input
+                    id="incomeDate"
+                    type="date"
+                    value={newIncome.date}
+                    onChange={(e) =>
+                      setNewIncome({
+                        ...newIncome,
+                        date: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <Button onClick={() => addIncome()} className="w-full">
+                  Add Income
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1 md:col-span-2 mb-6">
             <CardHeader>
               <CardTitle>Recent Transactions</CardTitle>
             </CardHeader>
@@ -290,10 +396,11 @@ export default function Tracker() {
                     <TableHead>Date</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Amount</TableHead>
+                    <TableHead>Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.slice(0, 5).map((t, i) => (
+                  {transactions.map((t, i) => (
                     <TableRow key={i}>
                       <TableCell>
                         {new Date(t.date).toLocaleDateString()}
@@ -305,6 +412,15 @@ export default function Tracker() {
                         }
                       >
                         ${Math.abs(t.amount).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteTransaction(t.id)}
+                        >
+                          <Trash2 className="text-red-500" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
