@@ -117,6 +117,8 @@ export default function Dashboard() {
       setLoading(true);
       setAudioUploadError(null); // Clear any previous errors
 
+      //Audio File process
+
       if (selectedAudioFile) {
         console.log("Attempting to upload audio file:", selectedAudioFile.name);
         if (!ALLOWED_AUDIO_FILE_TYPES.includes(selectedAudioFile.type)) {
@@ -141,8 +143,6 @@ export default function Dashboard() {
             .from("audio")
             .upload("public/" + selectedAudioFile.name, selectedAudioFile);
 
-          if (error) throw error;
-
           console.log("Audio uploaded successfully:", data);
           const { data: publicUrlData } = supabase.storage
             .from("audio")
@@ -158,6 +158,29 @@ export default function Dashboard() {
               content: `Uploaded audio: ${selectedAudioFile.name}`,
             },
           ]);
+          const response = await fetch(`${API_URL}transcribe/audio`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ audio: audioUrl, userID: userId }),
+          });
+          const messageData = await response.json();
+          const textResponse = messageData.result.textResponse;
+          console.log("textResponse", textResponse);
+
+          // Simulate bot response
+          setTimeout(() => {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                type: "bot",
+                content:
+                  textResponse ||
+                  "Thank you for your complaint. We've recorded it and will get back to you soon.",
+              },
+            ]);
+          }, 1000);
         } catch (error: any) {
           console.error("Error uploading audio:", error);
           const errorMessage = `Error uploading audio: ${
@@ -176,7 +199,7 @@ export default function Dashboard() {
           setLoading(false);
         }
       }
-
+      //Text message process
       if (inputText.trim()) {
         setMessages((prevMessages) => [
           ...prevMessages,
