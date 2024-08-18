@@ -11,6 +11,7 @@ import { Camera, Mic, Send, User, Bot, Loader2 } from "lucide-react";
 import { API_URL } from "../config";
 import { set } from "react-hook-form";
 import toast from "react-hot-toast";
+import Header from "@/components/ui/navbar";
 
 //whisper only accepts these audio formats
 const ALLOWED_AUDIO_FILE_TYPES = [
@@ -250,10 +251,13 @@ export default function Dashboard() {
   const handleAdminPageRedirect = () => {
     router.push("/admin");
   };
+  const handleRequestsClick = () => {
+    router.push("/requests");
+  };
 
   const handleRequestPageRedirect = () => {
     router.push("/requests");
-  }
+  };
 
   const defaultComplaints = [
     "Product not as described",
@@ -272,23 +276,7 @@ export default function Dashboard() {
           : "bg-gray-100 text-gray-900"
       }`}
     >
-      <nav className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          {userId && userId === "f6b625bc-e878-4fc2-9855-fb51e312cfba" ? (
-            <>
-              <ToggleButton />
-              <Button onClick={handleSignOut}>Sign Out</Button>
-              <Button onClick={handleAdminPageRedirect}>Admin</Button>
-            </>
-          ) : (
-            <>
-              <ToggleButton />
-              <Button onClick={handleSignOut}>Sign Out</Button>
-            </>
-          )}
-        </div>
-      </nav>
+      <Header />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
@@ -305,7 +293,12 @@ export default function Dashboard() {
 
         <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
           <CardHeader>
-            <CardTitle onClick={handleRequestPageRedirect} className="hover:underline hover:cursor-pointer">Stats</CardTitle>
+            <CardTitle
+              onClick={handleRequestPageRedirect}
+              className="hover:underline hover:cursor-pointer"
+            >
+              Stats
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p>Your complaint stats and metrics will be displayed here.</p>

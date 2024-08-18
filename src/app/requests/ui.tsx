@@ -1,19 +1,31 @@
 "use client";
-import Link from 'next/link'
+
+import Link from "next/link";
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import Header from "@/components/ui/navbar";
 
 interface Complaint {
   complaints: any[];
-  fetchSimilarComplaints: (complaint: any) => any;
-  fetchSolution: (complaint: any) => any;
-  handleResolve: (complaint: any, solution: string | undefined) => any;
+  fetchSimilarComplaints: (complaint: any) => Promise<any>;
+  fetchSolution: (complaint: any) => Promise<any>;
+  handleResolve: (complaint: any, solution: string | undefined) => Promise<any>;
 }
 
 export default function RequestsUI(props: Complaint) {
-  const complaints = props.complaints;
-  const fetchSimilarComplaints = props.fetchSimilarComplaints;
-  const fetchSolution = props.fetchSolution;
-  const handleResolve = props.handleResolve;
+  const { complaints, fetchSimilarComplaints, fetchSolution, handleResolve } =
+    props;
 
   const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
   const [similarComplaints, setSimilarComplaints] = useState<any[]>([]);
@@ -67,15 +79,13 @@ export default function RequestsUI(props: Complaint) {
         ...selectedComplaint,
         resolved: selectedComplaint.resolved === "true" ? "false" : "true",
       };
-  
-      if (updatedComplaint.resolved === "true") { 
-        // Mark selected as resolved
+
+      if (updatedComplaint.resolved === "true") {
         setResolvedComplaints((prev) => [...prev, updatedComplaint]);
         setUnresolvedComplaints((prev) =>
           prev.filter((complaint) => complaint.text !== updatedComplaint.text)
         );
       } else {
-        // Mark selected as unresolved
         setUnresolvedComplaints((prev) => [...prev, updatedComplaint]);
         setResolvedComplaints((prev) =>
           prev.filter((complaint) => complaint.text !== updatedComplaint.text)
@@ -89,141 +99,143 @@ export default function RequestsUI(props: Complaint) {
     }
   };
 
+  const renderComplaintCard = (complaint: any) => (
+    <Card
+      className={`mb-4 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden ${
+        complaint.resolved === "true" ? "bg-green-50" : "bg-red-50"
+      }`}
+      onClick={() => handleComplaintClick(complaint)}
+    >
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1 ${
+          complaint.resolved === "true" ? "bg-green-500" : "bg-red-500"
+        }`}
+      />
+      <CardHeader className="flex flex-row text-black items-center justify-between">
+        <CardTitle className="text-lg">{complaint.summary}</CardTitle>
+        {complaint.resolved === "true" ? (
+          <CheckCircle className="h-5 w-5 text-green-500" />
+        ) : (
+          <XCircle className="h-5 w-5 text-red-500" />
+        )}
+      </CardHeader>
+      <CardContent className="text-black">
+        <p>
+          <strong>Product:</strong> {complaint.product}
+        </p>
+        <p>
+          <strong>Subcategory:</strong> {complaint.subcategory}
+        </p>
+        <p>
+          <strong>Text:</strong> {complaint.text}
+        </p>
+        {complaint.admin_text && complaint.admin_text.trim() !== "" && (
+          <p>
+            <strong>Admin Text:</strong> {complaint.admin_text}
+          </p>
+        )}
+        <p className="text-sm mt-2">
+          <strong>User ID:</strong> {complaint.userID}
+        </p>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="container mx-auto">
-      <nav className="bg-black fixed top-0 left-0 w-full p-4 text-white flex justify-between items-center">
-        <h1 className="text-xl font-bold">Requests Page</h1>
-        <Link href="/dashboard" className="text-xl font-bold p-4">
-          Dashboard
-        </Link>
-      </nav>
-      <h1 className="text-center text-2xl font-bold mt-12 mb-4">Requests</h1>
-      <div className="flex justify-between">
-        <div className="w-1/2 p-4 mr-2">
-          <h2 className="text-xl text-center font-semibold mb-2">
-            Unresolved Complaints
-          </h2>
-          {unresolvedComplaints.map((complaint, index) => (
-            <div
-              key={index}
-              className="mb-2 p-2 border rounded bg-white text-black"
-              onClick={() => handleComplaintClick(complaint)}
-            >
-              <p className="mb-2">
-                <strong>Summary:</strong> {complaint.summary}
-              </p>
-              <p className="mb-2">
-                <strong>Product:</strong> {complaint.product}
-              </p>
-              <p className="mb-2">
-                <strong>Subcategory:</strong> {complaint.subcategory}
-              </p>
-              <p className="mb-4">
-                <strong>Text:</strong> {complaint.text}
-              </p>
-              <p className="text-sm">
-                <strong>User ID:</strong> {complaint.userID}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="w-1/2 p-4 ml-2">
-          <h2 className="text-xl text-center font-semibold mb-2">
-            Resolved Complaints
-          </h2>
-          {resolvedComplaints.map((complaint, index) => (
-            <div
-              key={index}
-              className="mb-2 p-2 border rounded bg-white text-black"
-              onClick={() => handleComplaintClick(complaint)}
-            >
-              <p>
-                <strong>Summary:</strong> {complaint.summary}
-              </p>
-              <p>
-                <strong>Product:</strong> {complaint.product}
-              </p>
-              <p>
-                <strong>Subcategory:</strong> {complaint.subcategory}
-              </p>
-              <p>
-                <strong>Text:</strong> {complaint.text}
-              </p>
-              {complaint.admin_text.trim() !== "" && (
-                <p>
-                  <strong>Admin Text:</strong> {complaint.admin_text}
-                </p>
-              )}
-              <p>
-                <strong>User ID:</strong> {complaint.userID}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <Header />
+      <h1 className="text-3xl font-bold text-center mt-16 mb-8">Requests</h1>
 
-      {isDialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto py-8">
-          <div className="bg-white p-4 rounded shadow-lg w-1/3 text-black max-h-full overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-2">Similar Complaints</h2>
-            {similarComplaints.map((complaint, index) => (
-              <div key={index} className="mb-2 p-2 border rounded bg-gray-100">
-                <p>
-                  <strong>Product:</strong> {complaint.product}
-                </p>
-                <p>
-                  <strong>Subcategory:</strong> {complaint.subcategory}
-                </p>
-                <p>
-                  <strong>Text:</strong> {complaint.text}
-                </p>
-              </div>
-            ))}
-
-            {solution && (
-              <div className="mt-4 p-2 border rounded bg-green-100">
-                <h3 className="text-lg font-semibold">Solution</h3>
-                <p>{solution}</p>
-              </div>
+      <Tabs defaultValue="unresolved" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="unresolved">Unresolved Complaints</TabsTrigger>
+          <TabsTrigger value="resolved">Resolved Complaints</TabsTrigger>
+        </TabsList>
+        <TabsContent value="unresolved">
+          <ScrollArea className="h-[60vh] w-full rounded-md border p-4 shadow-inner">
+            {unresolvedComplaints.map((complaint, index) =>
+              renderComplaintCard(complaint)
             )}
-            <div className="mt-4 flex justify-between">
-              {solution && (
-                <button
-                  className="mr-2 p-2 bg-green-500 text-white rounded"
-                  onClick={handleResolveClick}
-                >
-                  Resolve
-                </button>
-              )}
-              {selectedComplaint.resolved === "true" && (
-                <button
-                  className="mr-2 p-2 bg-yellow-500 text-white rounded"
-                  onClick={handleResolveClick}
-                >
-                  Unresolve
-                </button>
-              )}
-              {selectedComplaint.resolved !== "true" && !solution && (
-                <button
-                  className="p-2 bg-blue-500 text-white rounded"
-                  onClick={handleSolutionClick}
-                >
-                  Generate Solution
-                </button>
-              )}
-              <button
-                className="p-2 bg-red-500 text-white rounded"
-                onClick={closeDialog}
-              >
-                Close
-              </button>
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="resolved">
+          <ScrollArea className="h-[60vh] w-full rounded-md border p-4 shadow-inner">
+            {resolvedComplaints.map((complaint, index) =>
+              renderComplaintCard(complaint)
+            )}
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              Complaint Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedComplaint && (
+            <div className="mt-4">
+              <h3 className="text-xl font-semibold mb-2">Selected Complaint</h3>
+              {renderComplaintCard(selectedComplaint)}
             </div>
+          )}
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold mb-2">Similar Complaints</h3>
+            <ScrollArea className="h-[30vh] w-full rounded-md border p-4 shadow-inner">
+              {similarComplaints.map((complaint, index) => (
+                <Card key={index} className="mb-4">
+                  <CardContent className="pt-4">
+                    <p>
+                      <strong>Product:</strong> {complaint.product}
+                    </p>
+                    <p>
+                      <strong>Subcategory:</strong> {complaint.subcategory}
+                    </p>
+                    <p>
+                      <strong>Text:</strong> {complaint.text}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </ScrollArea>
           </div>
-        </div>
-      )}
+          {solution && (
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold mb-2">Solution</h3>
+              <Card className="bg-green-100 dark:bg-green-900 shadow-md">
+                <CardContent className="pt-4">
+                  <p>{solution}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          <DialogFooter className="sm:justify-start mt-6">
+            {solution && (
+              <Button onClick={handleResolveClick} disabled={isLoading}>
+                {selectedComplaint?.resolved === "true"
+                  ? "Unresolve"
+                  : "Resolve"}
+              </Button>
+            )}
+            {selectedComplaint?.resolved !== "true" && !solution && (
+              <Button onClick={handleSolutionClick} disabled={isLoading}>
+                Generate Solution
+              </Button>
+            )}
+            <Button variant="secondary" onClick={closeDialog}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {isLoading && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50 text-white">
-          <h1>Loading...</h1>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-background text-foreground p-6 rounded-lg flex items-center shadow-xl">
+            <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+            <span className="text-lg">Loading...</span>
+          </div>
         </div>
       )}
     </div>
