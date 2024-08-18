@@ -6,7 +6,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Mic, Image, ClipboardList } from "lucide-react";
+import {
+  MessageSquare,
+  Mic,
+  Image,
+  ClipboardList,
+  CircleDollarSign,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function Directions() {
@@ -60,23 +66,42 @@ export default function Directions() {
         </Card>
       </div>
 
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <ClipboardList className="mr-2" size={20} />
-            Check Your Requests
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CardDescription>
-            View the status of your complaints and our responses on the Requests
-            page.
-          </CardDescription>
-          <Button asChild className="mt-2">
-            <Link href="/requests">Go to Requests</Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <ClipboardList className="mr-2" size={20} />
+              Check Your Requests
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              View the status of your complaints and our responses on the
+              Requests page.
+            </CardDescription>
+            <Button asChild className="mt-2">
+              <Link href="/requests">Go to Requests</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CircleDollarSign className="mr-2" size={20} />
+              Check Your Expenses
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              Check your transactions, set financial goals and generate
+              predictions on the Expenses page.
+            </CardDescription>
+            <Button asChild className="mt-2">
+              <Link href="/expenses">Go to Expenses</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

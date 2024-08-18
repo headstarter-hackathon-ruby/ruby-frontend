@@ -49,6 +49,10 @@ export default function Header() {
   const handleAdminPageRedirect = () => {
     router.push("/admin");
   };
+
+  const handleExpensesPageRedirect = () => {
+    router.push("/expenses");
+  };
   const pathname = usePathname();
   const isDashboard = pathname === "/dashboard";
 
@@ -70,6 +74,7 @@ export default function Header() {
             <ToggleButton />
             <Button onClick={handleAdminPageRedirect}>Admin</Button>
             <Button onClick={handleRequestsClick}>My Requests</Button>
+            <Button onClick={handleExpensesPageRedirect}>My Expenses</Button>
             <Button onClick={handleSignOut}>Sign Out</Button>
           </>
         ) : (
