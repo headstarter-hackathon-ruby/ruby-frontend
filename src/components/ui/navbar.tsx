@@ -43,8 +43,8 @@ export default function Header() {
     router.push("/requests");
   };
 
-  const handleRequestPageRedirect = () => {
-    router.push("/requests");
+  const handleExpenseRedirect = () => {
+    router.push("/tracker");
   };
   const handleAdminPageRedirect = () => {
     router.push("/admin");
@@ -69,6 +69,8 @@ export default function Header() {
           <>
             <ToggleButton />
             <Button onClick={handleAdminPageRedirect}>Admin</Button>
+            <Button onClick={handleExpenseRedirect}>Expense Tracker</Button>
+
             <Button onClick={handleRequestsClick}>My Requests</Button>
             <Button onClick={handleSignOut}>Sign Out</Button>
           </>
@@ -76,7 +78,7 @@ export default function Header() {
           <>
             <ToggleButton />
             <Button onClick={handleRequestsClick}>My Requests</Button>
-
+            <Button onClick={handleExpenseRedirect}>Expense Tracker</Button>
             <Button onClick={handleSignOut}>Sign Out</Button>
           </>
         )}
