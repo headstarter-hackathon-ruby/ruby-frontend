@@ -368,15 +368,6 @@ export default function Dashboard() {
     router.push("/requests");
   };
 
-  const defaultComplaints = [
-    "Product not as described",
-    "Late delivery",
-    "Poor customer service",
-    "Billing issue",
-    "Defective product",
-    "Cancellation problem",
-  ];
-
   return (
     <div
       className={`min-h-screen w-full p-4 ${
@@ -387,41 +378,12 @@ export default function Dashboard() {
     >
       <Header />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
-          <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>
-              Welcome to your dashboard. Here you can manage your account and
-              submit complaints.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
-          <CardHeader>
-            <CardTitle
-              onClick={handleRequestPageRedirect}
-              className="hover:underline hover:cursor-pointer"
-            >
-              Stats
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Your complaint stats and metrics will be displayed here.</p>
-          </CardContent>
-        </Card>
-
-        <Card className={theme === "dark" ? "bg-gray-800" : "bg-white"}>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Your recent complaint activity will be shown here.</p>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col gap-4 mb-8">
+        <h1 className="text-4xl font-bold ">Welcome</h1>
+        <p className="text-2xl">
+          Welcome to your dashboard. Here you can manage your account and submit
+          complaints.
+        </p>
       </div>
 
       <Card className={`mb-8 ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
@@ -478,11 +440,11 @@ export default function Dashboard() {
             <Input
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={(e) =>
+              onKeyDown={(e) =>
                 e.key === "Enter" && !loading && handleSendMessage()
               }
               placeholder="Type your complaint here..."
-              className="flex-1"
+              className="flex-1 mr-2"
               disabled={loading}
             />
             <Button onClick={handleSendMessage} disabled={loading}>
@@ -518,32 +480,6 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
-
-      <h2 className="text-xl font-semibold mb-4">Common Complaints</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {defaultComplaints.map((complaint, index) => (
-          <Button
-            key={index}
-            variant="outline"
-            className="h-auto py-4 px-6 text-left justify-start items-start"
-            onClick={() => {
-              setMessages([...messages, { type: "user", content: complaint }]);
-              setTimeout(() => {
-                setMessages((prevMessages) => [
-                  ...prevMessages,
-                  {
-                    type: "bot",
-                    content:
-                      "Thank you for your complaint. We've recorded it and will get back to you soon.",
-                  },
-                ]);
-              }, 1000);
-            }}
-          >
-            {complaint}
-          </Button>
-        ))}
-      </div>
     </div>
   );
 }
