@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# Ruby Dashboard
 
-First, run the development server:
+A complaint tracker and expense tracker bundled in one!
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+ Find similar complaints based on vector embeddings. Get suggested solutions to complaints based on similarly resolved complaints, allowing users to think less and sift through hundreds of unresolved complaints.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result
+ Keep track of expenses, visualizing all your transactions and breaking them down for more insights. With your transactions, your future balances over time can also be predicted.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+ 
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- Google Authentication / Admin Login
+- Light/dark mode toggle
+- Multimodal complaint submission (text, audio, image)
+- Expense Dashboard - showing all transactions made by user
+- Requests Dashboard - showing all complaints made by use
+- Admin Dashboard - breakdown of all complaints available only to Admin
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Tech Stack
 
-## Deploy on Vercel
+ - Frontend: Next.js, TailwindCSS, shadcn
+ - Backend: FastAPI, Python
+ - Deployment: Render (Backend), Vercel(Frontend)
+ - Database: Pinecone (vectors)  /   Supabase (audio/video files)
+ - AI Model: OpenAI, Whisper (voice), SciKit Learn
+ - RAG: Pinecone, LangGraph, OpenAI
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+
+
+### See our  [Demo](https://ruby-frontend-five.vercel.app/)
+
+
+## Authors
+
+- [@Naman](https://github.com/namanNagelia)
+- [@Maisha](https://github.com/maishaSupritee)
+- [@Evan](https://github.com/Colexeco)
+- [@Humzah](https://github.com/hdeejay)
+- [@Harvey](https://github.com/Verdenroz)
+
+
