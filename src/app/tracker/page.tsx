@@ -180,7 +180,7 @@ export default function Tracker() {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`min-h-screen  w-full p-4 ${
         theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"
       }`}
     >
@@ -197,7 +197,8 @@ export default function Tracker() {
               {!editingGoal && goalBudget ? (
                 <div className="flex justify-between items-center">
                   <p className="text-2xl font-semibold">
-                    Current Goal: ${goalBudget}
+                    Current Goal:{" "}
+                    <span className="text-green-500">${goalBudget}</span>
                   </p>
                   <Button onClick={() => setEditingGoal(true)}>
                     Edit Goal
