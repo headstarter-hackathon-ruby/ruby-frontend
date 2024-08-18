@@ -203,6 +203,25 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const submitAdminNoteUpdate = async (id: string) => {
+    if (tempAdminNotes[id]) {
+      try {
+        const res = await fetch(`${API_URL}complaints/admin_message?id=${encodeURIComponent(id)}`);
+        const data = await fetch(`${API_URL}complaints/current?id=${encodeURIComponent(id)}`);
+        if (data.ok) {
+          const jsonRes = await data.json();
+          const admin_text = jsonRes.admin_text;
+          setTempAdminNotes({ ...tempAdminNotes, [id]: admin_text });
+        } else {
+          throw new Error("Failed to update admin note");
+        }
+        } catch (error) {
+        console.error("Error updating admin note:", error);
+        setError("Failed to update admin note. Please try again.");
+      }
+    }
+  };
+
   const fetchSimilarComplaints = async () => {
     try {
       const response = await fetch(
@@ -274,14 +293,14 @@ const AdminDashboard: React.FC = () => {
             <CardTitle>Complaint Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
                   data={pieChartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
-                  outerRadius={70}
+                  innerRadius={60}
+                  outerRadius={80}
                   fill="#8884d8"
                   paddingAngle={5}
                   dataKey="value"
@@ -307,14 +326,14 @@ const AdminDashboard: React.FC = () => {
             <CardTitle>Complaint Categories</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={barChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="category" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="count" fill="#3b82f6" /> {/* Changed to blue */}
+                <Bar dataKey="count" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -335,7 +354,7 @@ const AdminDashboard: React.FC = () => {
           <Filter className="text-gray-400" />
           <Select
             value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value)}
+            onValueChange={(value: any) => setStatusFilter(value)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -362,7 +381,11 @@ const AdminDashboard: React.FC = () => {
         </TableHeader>
         <TableBody>
           {currentComplaints.map((complaint) => (
-            <TableRow key={complaint.id}>
+            <TableRow
+              key={complaint.id}
+              // className={
+              // }
+            >
               <TableCell>{complaint.id}</TableCell>
               <TableCell>{complaint.metadata.product}</TableCell>
               <TableCell>{complaint.metadata.sub_product}</TableCell>
@@ -403,7 +426,7 @@ const AdminDashboard: React.FC = () => {
                     className="mr-2"
                   />
                   <Button
-                    onClick={() => submitAdminNote(complaint.id)}
+                    onClick={() => submitAdminNoteUpdate(complaint.id)}
                     disabled={!tempAdminNotes[complaint.id]}
                     size="sm"
                   >
@@ -411,7 +434,7 @@ const AdminDashboard: React.FC = () => {
                   </Button>
                 </div>
                 {complaint.metadata.admin_text && (
-                  <div className="mt-2 text-sm p-2 rounded">
+                  <div className="mt-2 text-sm  p-2 rounded">
                     <strong>Note:</strong> {complaint.metadata.admin_text}
                   </div>
                 )}
