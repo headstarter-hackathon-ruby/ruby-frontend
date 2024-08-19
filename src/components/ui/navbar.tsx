@@ -49,6 +49,9 @@ export default function Header() {
   const handleAdminPageRedirect = () => {
     router.push("/admin");
   };
+  const handleClick = () => {
+    router.push("/dashboard");
+  };
   const pathname = usePathname();
   const isDashboard = pathname === "/dashboard";
 
@@ -70,6 +73,7 @@ export default function Header() {
             <ToggleButton />
             <Button onClick={handleAdminPageRedirect}>Admin</Button>
             <Button onClick={handleExpenseRedirect}>Expense Tracker</Button>
+            <Button onClick={handleClick}>Complaints</Button>
 
             <Button onClick={handleRequestsClick}>My Requests</Button>
             <Button onClick={handleSignOut}>Sign Out</Button>
@@ -77,6 +81,8 @@ export default function Header() {
         ) : (
           <>
             <ToggleButton />
+            <Button onClick={handleClick}>Complaints</Button>
+
             <Button onClick={handleRequestsClick}>My Requests</Button>
             <Button onClick={handleExpenseRedirect}>Expense Tracker</Button>
             <Button onClick={handleSignOut}>Sign Out</Button>
